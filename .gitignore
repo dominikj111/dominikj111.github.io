@@ -1,5 +1,6 @@
 # build output
-# dist/  ← COMMENTED OUT - we commit dist/ for GitHub Pages
+# dist/  ← Not used anymore
+# docs/  ← COMMENTED OUT - we commit docs/ for GitHub Pages
 
 # generated types
 .astro/
