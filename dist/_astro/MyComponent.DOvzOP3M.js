@@ -1,1 +1,0 @@
-import{j as t,B as o}from"./react.DAxt3DeW.js";import"./index.Bz3_ld-V.js";function e(){return t.jsx(o,{size:"sm",variant:"outline",onClick:()=>console.log("ui-components-library Button Click"),children:"Test UI Lib button"})}export{e as default};

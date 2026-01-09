@@ -1,5 +1,5 @@
 # build output
-# dist/  ← Not used anymore
+dist/
 # docs/  ← COMMENTED OUT - we commit docs/ for GitHub Pages
 
 # generated types
