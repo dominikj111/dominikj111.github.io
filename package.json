@@ -10,14 +10,19 @@
     "astro": "astro"
   },
   "dependencies": {
+    "@ui-components-library/react": "link:../my-saas/ui-components-library/packages/react",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3"
+  },
+  "devDependencies": {
     "@astrojs/mdx": "^4.3.13",
     "@astrojs/react": "^4.4.2",
     "@astrojs/rss": "^4.0.14",
     "@astrojs/sitemap": "^3.6.1",
-    "@ui-components-library/react": "link:../my-saas/ui-components-library/packages/react",
+    "@tailwindcss/vite": "^4.1.18",
     "astro": "^5.16.7",
-    "react": "^19.2.3",
-    "react-dom": "^19.2.3",
-    "sharp": "^0.34.5"
+    "daisyui": "^5.5.14",
+    "sharp": "^0.34.5",
+    "tailwindcss": "^4.1.18"
   }
 }
