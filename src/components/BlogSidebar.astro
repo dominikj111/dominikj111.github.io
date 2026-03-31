@@ -1,0 +1,53 @@
+---
+// Persistent navigation sidebar for blog/article pages.
+// Active filter highlights are applied client-side from sessionStorage (pf-state),
+// written continuously by PortfolioApp on the home page.
+const FILTERS = [
+  { type: 'project',   label: 'Projects' },
+  { type: 'article',   label: 'Articles' },
+  { type: 'reference', label: 'References' },
+] as const;
+---
+
+<nav class="pf-sidebar" aria-label="Site navigation">
+  <div class="pf-sidebar__logo-wrap">
+    <a
+      href="/"
+      class="pf-sidebar__logo"
+      onclick="try{sessionStorage.removeItem('pf-state')}catch(_){}"
+    >dominikj111</a>
+    <p class="pf-sidebar__tagline">Software Engineer</p>
+  </div>
+
+  <div>
+    <p class="pf-sidebar__section-label">Browse</p>
+    <div class="pf-sidebar__filters">
+      {FILTERS.map(({ type, label }) => (
+        <a
+          href={`/?f=${type}`}
+          class={`pf-filter-btn pf-filter-btn--${type}`}
+          data-filter-type={type}
+        >
+          <span class="pf-filter-btn__dot" aria-hidden="true"></span>
+          <span class="pf-filter-btn__label">{label}</span>
+        </a>
+      ))}
+    </div>
+  </div>
+</nav>
+
+<script is:inline>
+  // Read pf-state from sessionStorage and highlight whichever filters were active
+  (function () {
+    try {
+      const raw = sessionStorage.getItem('pf-state');
+      if (!raw) return;
+      const state = JSON.parse(raw);
+      const active = Array.isArray(state.filters) ? state.filters : [];
+      active.forEach(function (type) {
+        const btn = document.querySelector('[data-filter-type="' + type + '"]');
+        if (btn) btn.classList.add('pf-filter-btn--active');
+      });
+    } catch {}
+  })();
+</script>

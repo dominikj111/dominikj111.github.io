@@ -2,85 +2,84 @@
 import { Image } from 'astro:assets';
 import type { CollectionEntry } from 'astro:content';
 import BaseHead from '../components/BaseHead.astro';
-import Footer from '../components/Footer.astro';
+import BlogSidebar from '../components/BlogSidebar.astro';
 import FormattedDate from '../components/FormattedDate.astro';
-import Header from '../components/Header.astro';
 
-type Props = CollectionEntry<'blog'>['data'];
+type Props = CollectionEntry<'blog'>['data'] & {
+  /** When true the article body stretches to the full content area width */
+  wide?: boolean;
+};
 
-const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
+const { title, description, pubDate, updatedDate, heroImage, wide = false } = Astro.props;
 ---
 
 <html lang="en">
-	<head>
-		<BaseHead title={title} description={description} />
-		<style>
-			main {
-				width: calc(100% - 2em);
-				max-width: 100%;
-				margin: 0;
-			}
-			.hero-image {
-				width: 100%;
-			}
-			.hero-image img {
-				display: block;
-				margin: 0 auto;
-				border-radius: 12px;
-				box-shadow: var(--box-shadow);
-			}
-			.prose {
-				width: 720px;
-				max-width: calc(100% - 2em);
-				margin: auto;
-				padding: 1em;
-				color: rgb(var(--gray-dark));
-			}
-			.title {
-				margin-bottom: 1em;
-				padding: 1em 0;
-				text-align: center;
-				line-height: 1;
-			}
-			.title h1 {
-				margin: 0 0 0.5em 0;
-			}
-			.date {
-				margin-bottom: 0.5em;
-				color: rgb(var(--gray));
-			}
-			.last-updated-on {
-				font-style: italic;
-			}
-		</style>
-	</head>
+  <head>
+    <BaseHead
+      title={`${title} — dominikj111`}
+      description={description}
+      image={heroImage}
+      isArticle={true}
+      pubDate={pubDate}
+    />
+    <script is:inline type="application/ld+json" set:html={JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "BlogPosting",
+      "headline": title,
+      "description": description,
+      "datePublished": pubDate.toISOString(),
+      ...(updatedDate ? { "dateModified": updatedDate.toISOString() } : {}),
+      "author": {
+        "@type": "Person",
+        "name": "Dominik J.",
+        "url": Astro.site?.toString()
+      },
+      "publisher": {
+        "@type": "Person",
+        "name": "Dominik J.",
+        "url": Astro.site?.toString()
+      },
+      "url": Astro.url.toString()
+    })} />
+  </head>
 
-	<body>
-		<Header />
-		<main>
-			<article>
-				<div class="hero-image">
-					{heroImage && <Image width={1020} height={510} src={heroImage} alt="" />}
-				</div>
-				<div class="prose">
-					<div class="title">
-						<div class="date">
-							<FormattedDate date={pubDate} />
-							{
-								updatedDate && (
-									<div class="last-updated-on">
-										Last updated on <FormattedDate date={updatedDate} />
-									</div>
-								)
-							}
-						</div>
-						<h1>{title}</h1>
-						<hr />
-					</div>
-					<slot />
-				</div>
-			</article>
-		</main>
-		<Footer />
-	</body>
+  <body class="pf-blog-body">
+    <div class="pf-blog-layout">
+      <BlogSidebar />
+
+      <main class="pf-blog-main">
+        <a href="/" class="pf-blog-back">← Back</a>
+
+        <article class:list={['pf-blog-article', wide && 'pf-blog-article--wide']}>
+          <header class="pf-blog-article__header">
+            <div class="pf-blog-article__type-row">
+              <span class="pf-type-dot pf-type-dot--article" aria-hidden="true"></span>
+              <span class="pf-type-label">Article</span>
+            </div>
+            <h1 class="pf-blog-article__title">{title}</h1>
+            <div class="pf-blog-article__meta">
+              <time datetime={pubDate.toISOString()}>
+                <FormattedDate date={pubDate} />
+              </time>
+              {updatedDate && (
+                <span class="pf-blog-article__updated">
+                  Updated <FormattedDate date={updatedDate} />
+                </span>
+              )}
+            </div>
+          </header>
+
+          {heroImage && (
+            <div class="pf-blog-article__hero">
+              <Image width={1020} height={510} src={heroImage} alt="" />
+            </div>
+          )}
+
+          <div class="pf-prose">
+            <slot />
+          </div>
+        </article>
+      </main>
+    </div>
+  </body>
 </html>

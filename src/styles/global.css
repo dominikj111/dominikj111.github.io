@@ -1,3 +1,5 @@
+@import "@ui-components-library/react/styles";
+@import "../components/portfolio/portfolio.css";
 @import "tailwindcss";
 @import "tw-animate-css";
 /*

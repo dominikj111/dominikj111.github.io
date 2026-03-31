@@ -1,0 +1,1 @@
+- [Portfolio SPA architecture](project_portfolio_spa.md) — React SPA on index, palette #1f363d–#cfe0c3, component tree, data layer, animation rules
