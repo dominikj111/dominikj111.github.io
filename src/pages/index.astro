@@ -2,14 +2,71 @@
 import BaseHead from "../components/BaseHead.astro";
 import { SITE_TITLE, SITE_DESCRIPTION } from "../consts";
 import PortfolioApp from "../components/portfolio/PortfolioApp";
+import { CONTENT_ITEMS } from "../data/content";
+
+const TYPE_LABELS: Record<string, string> = {
+  project:   "Project",
+  article:   "Article",
+  reference: "Reference",
+};
+
+// JSON-LD ItemList — all content items as structured data for crawlers
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "ItemList",
+  "name": SITE_TITLE,
+  "description": SITE_DESCRIPTION,
+  "url": Astro.site?.toString(),
+  "itemListElement": CONTENT_ITEMS.map((item, index) => ({
+    "@type": "ListItem",
+    "position": index + 1,
+    "item": {
+      "@type": item.type === "article" ? "BlogPosting" : "CreativeWork",
+      "name": item.title,
+      "description": item.description,
+      "keywords": item.tags.join(", "),
+      "dateCreated": item.createdAt,
+      ...(item.url  ? { "url": item.url } : {}),
+      ...(item.slug ? { "url": new URL(`/blog/${item.slug}`, Astro.site).toString() } : {}),
+    },
+  })),
+};
 ---
 
 <!doctype html>
 <html lang="en">
   <head>
     <BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
+    <script is:inline type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
   </head>
   <body>
-    <PortfolioApp client:load />
+    <!-- Static content for crawlers that don't execute JS -->
+    <noscript>
+      <main style="font-family:sans-serif;max-width:860px;margin:0 auto;padding:2rem">
+        <h1>{SITE_TITLE}</h1>
+        <p>{SITE_DESCRIPTION}</p>
+        <ul>
+          {CONTENT_ITEMS.map(item => (
+            <li style="margin-bottom:1.5rem">
+              <strong>
+                {item.slug
+                  ? <a href={`/blog/${item.slug}`}>{item.title}</a>
+                  : item.url
+                    ? <a href={item.url} rel="noopener noreferrer">{item.title}</a>
+                    : item.title
+                }
+              </strong>
+              {' '}
+              <em style="font-size:0.85em">({TYPE_LABELS[item.type]})</em>
+              <br />
+              {item.description}
+            </li>
+          ))}
+        </ul>
+      </main>
+    </noscript>
+
+    <!-- Interactive SPA — client:only skips SSR so state initializes cleanly in the browser -->
+    <PortfolioApp client:only="react" />
   </body>
 </html>

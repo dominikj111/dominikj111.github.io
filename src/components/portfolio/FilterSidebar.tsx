@@ -4,7 +4,6 @@ interface FilterSidebarProps {
   activeFilters: Set<ContentType>;
   onToggle: (type: ContentType) => void;
   onClear: () => void;
-  onLogoClick: () => void;
   items: ContentItem[];
 }
 
@@ -14,17 +13,13 @@ const FILTERS: { type: ContentType; label: string }[] = [
   { type: 'reference', label: 'References' },
 ];
 
-export default function FilterSidebar({ activeFilters, onToggle, onClear, onLogoClick, items }: FilterSidebarProps) {
+export default function FilterSidebar({ activeFilters, onToggle, onClear, items }: FilterSidebarProps) {
   const countByType = (type: ContentType) => items.filter(i => i.type === type).length;
 
   return (
     <nav className="pf-sidebar" aria-label="Content filters">
       <div className="pf-sidebar__logo-wrap">
-        <a
-          href="/"
-          className="pf-sidebar__logo"
-          onClick={e => { e.preventDefault(); onLogoClick(); }}
-        >dominikj111</a>
+        <a href="/" className="pf-sidebar__logo">dominikj111</a>
         <p className="pf-sidebar__tagline">Software Engineer</p>
       </div>
 

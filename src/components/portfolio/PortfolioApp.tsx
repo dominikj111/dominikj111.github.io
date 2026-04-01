@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import type { ContentType } from '../../data/schema';
 import { CONTENT_ITEMS } from '../../data/content';
 import { isContentType } from '../../data/schema';
@@ -10,68 +10,122 @@ import FilterSidebar from './FilterSidebar';
 import ContentGrid from './ContentGrid';
 import FocusPanel from './FocusPanel';
 
-export default function PortfolioApp() {
-  const [introVisible, setIntroVisible] = useState(true);
-  const [introExiting, setIntroExiting] = useState(false);
-  const [activeFilters, setActiveFilters] = useState<Set<ContentType>>(new Set());
-  const [focusedId, setFocusedId]         = useState<string | null>(null);
-  const [viewMode, setViewMode]           = useState<ViewMode>('grid');
+// ---------------------------------------------------------------------------
+// Synchronous initial state — runs before first paint (no useEffect needed)
+// ---------------------------------------------------------------------------
 
-  // --- Initialise: URL params take precedence, then sessionStorage, else show intro ---
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const f      = params.get('f');
-    const focus  = params.get('focus');
-    const view   = params.get('v');
+interface InitialState {
+  introVisible: boolean;
+  filters: Set<ContentType>;
+  focusedId: string | null;
+  viewMode: ViewMode;
+  /** True when state was restored from storage — suppresses panel slide animation */
+  restored: boolean;
+}
 
-    if (f || focus || view) {
-      // Explicit URL state (e.g. shared link) — use it, skip intro
-      setIntroVisible(false);
-      if (f)    { setActiveFilters(new Set(f.split(',').filter(isContentType) as ContentType[])); }
-      if (focus)  setFocusedId(focus);
-      if (view === 'table') setViewMode('table');
-    } else {
-      // Only restore from sessionStorage when navigating back from within the site.
-      // A direct/fresh visit to "/" always shows the intro regardless of stored state.
-      const fromSameSite =
-        document.referrer !== '' &&
-        new URL(document.referrer).origin === window.location.origin;
+function computeInitialState(): InitialState {
+  const defaults: InitialState = {
+    introVisible: true,
+    filters: new Set(),
+    focusedId: null,
+    viewMode: 'grid',
+    restored: false,
+  };
 
-      if (fromSameSite) {
-        const saved = loadState();
-        const hasState = saved.filters.length > 0 || saved.focusedId || saved.viewMode !== 'grid';
-        if (hasState) {
-          setIntroVisible(false);
-          setActiveFilters(new Set(saved.filters));
-          setFocusedId(saved.focusedId);
-          setViewMode(saved.viewMode);
-          const p = new URLSearchParams();
-          if (saved.filters.length > 0)  p.set('f', saved.filters.join(','));
-          if (saved.focusedId)            p.set('focus', saved.focusedId);
-          if (saved.viewMode === 'table') p.set('v', 'table');
-          const qs = p.toString();
-          history.replaceState(null, '', qs ? `?${qs}` : window.location.pathname);
-        }
-      }
+  // During SSR window is not available — client:only means this never runs on
+  // server, but guard defensively anyway.
+  if (typeof window === 'undefined') return defaults;
+
+  // Explicit URL params (shared link) take highest precedence
+  const params = new URLSearchParams(window.location.search);
+  const f      = params.get('f');
+  const focus  = params.get('focus');
+  const view   = params.get('v');
+
+  if (f || focus || view) {
+    return {
+      introVisible: false,
+      filters:      new Set((f ?? '').split(',').filter(isContentType) as ContentType[]),
+      focusedId:    focus,
+      viewMode:     view === 'table' ? 'table' : 'grid',
+      restored:     true,
+    };
+  }
+
+  // Only restore state when navigating back from an article page.
+  // Logo clicks (referrer = /) and fresh visits (no referrer) show the intro.
+  const fromArticle =
+    document.referrer !== '' &&
+    (() => { try { const u = new URL(document.referrer); return u.origin === window.location.origin && u.pathname.startsWith('/blog/'); } catch { return false; } })();
+
+  if (fromArticle) {
+    const saved    = loadState();
+    const hasState = saved.filters.length > 0 || saved.focusedId || saved.viewMode !== 'grid';
+    if (hasState) {
+      return {
+        introVisible: false,
+        filters:      new Set(saved.filters),
+        focusedId:    null,
+        viewMode:     saved.viewMode,
+        restored:     false,
+      };
     }
+  }
+
+  // No session state — still check localStorage for the persisted view preference
+  try {
+    const view = localStorage.getItem('pf-view') as ViewMode | null;
+    if (view === 'table') defaults.viewMode = 'table';
+  } catch {}
+
+  return defaults;
+}
+
+// ---------------------------------------------------------------------------
+// Component
+// ---------------------------------------------------------------------------
+
+export default function PortfolioApp() {
+  // All initial state computed synchronously — no flash, no useEffect needed
+  const [init] = useState<InitialState>(computeInitialState);
+
+  const [introVisible, setIntroVisible] = useState(init.introVisible);
+  const [introExiting, setIntroExiting] = useState(false);
+  const [activeFilters, setActiveFilters] = useState<Set<ContentType>>(init.filters);
+  const [focusedId, setFocusedId]         = useState<string | null>(init.focusedId);
+  const [viewMode, setViewMode]           = useState<ViewMode>(init.viewMode);
+
+  // After first render, `instant` should be false so subsequent panel opens animate normally
+  const instantRef = useRef(init.restored);
+  useEffect(() => { instantRef.current = false; }, []);
+
+  // Sync restored state to URL on mount (only when restored, to avoid overwriting clean /)
+  useEffect(() => {
+    if (!init.restored) return;
+    const p = new URLSearchParams();
+    const f = [...init.filters];
+    if (f.length > 0)              p.set('f', f.join(','));
+    if (init.focusedId)            p.set('focus', init.focusedId);
+    if (init.viewMode === 'table') p.set('v', 'table');
+    const qs = p.toString();
+    history.replaceState(null, '', qs ? `?${qs}` : window.location.pathname);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // --- Sync state → sessionStorage + URL on every change -------------------
+  // Sync state → sessionStorage + URL on every change (after intro is dismissed)
   useEffect(() => {
     if (introVisible) return;
-
     const filters = [...activeFilters] as ContentType[];
     saveState({ filters, viewMode, focusedId });
-
     const p = new URLSearchParams();
-    if (filters.length > 0) p.set('f', filters.join(','));
-    if (focusedId)           p.set('focus', focusedId);
-    if (viewMode === 'table') p.set('v', 'table');
+    if (filters.length > 0)    p.set('f', filters.join(','));
+    if (focusedId)              p.set('focus', focusedId);
+    if (viewMode === 'table')   p.set('v', 'table');
     const qs = p.toString();
     history.replaceState(null, '', qs ? `?${qs}` : window.location.pathname);
   }, [introVisible, activeFilters, focusedId, viewMode]);
 
-  // --- Keyboard: Escape closes focus panel ----------------------------------
+  // Escape closes focus panel
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && focusedId) setFocusedId(null);
@@ -96,18 +150,8 @@ export default function PortfolioApp() {
 
   const clearFilters = () => setActiveFilters(new Set());
 
-  const resetToIntro = () => {
-    setActiveFilters(new Set());
-    setFocusedId(null);
-    setViewMode('grid');
-    setIntroExiting(false);
-    setIntroVisible(true);
-    history.replaceState(null, '', window.location.pathname);
-  };
-
-  const focusedItem = CONTENT_ITEMS.find(i => i.id === focusedId) ?? null;
-
-  const filterSummary = activeFilters.size > 0
+  const focusedItem    = CONTENT_ITEMS.find(i => i.id === focusedId) ?? null;
+  const filterSummary  = activeFilters.size > 0
     ? [...activeFilters].map(f => f.charAt(0).toUpperCase() + f.slice(1) + 's').join(' + ')
     : null;
 
@@ -122,7 +166,6 @@ export default function PortfolioApp() {
           activeFilters={activeFilters}
           onToggle={toggleFilter}
           onClear={clearFilters}
-          onLogoClick={resetToIntro}
           items={CONTENT_ITEMS}
         />
 
@@ -133,9 +176,7 @@ export default function PortfolioApp() {
                 {filterSummary && (
                   <>
                     <strong>{filterSummary}</strong>
-                    <button className="pf-toolbar__clear" onClick={clearFilters}>
-                      clear
-                    </button>
+                    <button className="pf-toolbar__clear" onClick={clearFilters}>clear</button>
                   </>
                 )}
               </span>
@@ -145,8 +186,7 @@ export default function PortfolioApp() {
               <button
                 className={`pf-view-btn${viewMode === 'grid' ? ' pf-view-btn--active' : ''}`}
                 onClick={() => setViewMode('grid')}
-                aria-label="Grid view"
-                title="Grid view"
+                aria-label="Grid view" title="Grid view"
               >
                 <svg width="15" height="15" viewBox="0 0 15 15" fill="none" aria-hidden="true">
                   <rect x="1" y="1" width="5" height="5" rx="1" fill="currentColor"/>
@@ -158,13 +198,12 @@ export default function PortfolioApp() {
               <button
                 className={`pf-view-btn${viewMode === 'table' ? ' pf-view-btn--active' : ''}`}
                 onClick={() => setViewMode('table')}
-                aria-label="Table view"
-                title="Table view"
+                aria-label="Table view" title="Table view"
               >
                 <svg width="15" height="15" viewBox="0 0 15 15" fill="none" aria-hidden="true">
-                  <rect x="1" y="2"  width="13" height="2" rx="1" fill="currentColor"/>
+                  <rect x="1" y="2"   width="13" height="2" rx="1" fill="currentColor"/>
                   <rect x="1" y="6.5" width="13" height="2" rx="1" fill="currentColor"/>
-                  <rect x="1" y="11" width="13" height="2" rx="1" fill="currentColor"/>
+                  <rect x="1" y="11"  width="13" height="2" rx="1" fill="currentColor"/>
                 </svg>
               </button>
             </div>
@@ -187,7 +226,11 @@ export default function PortfolioApp() {
         aria-hidden="true"
       />
 
-      <FocusPanel item={focusedItem} onClose={() => setFocusedId(null)} />
+      <FocusPanel
+        item={focusedItem}
+        onClose={() => setFocusedId(null)}
+        instant={instantRef.current}
+      />
     </>
   );
 }

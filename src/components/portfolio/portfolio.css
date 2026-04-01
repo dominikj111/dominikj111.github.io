@@ -601,6 +601,11 @@
   transform: translateX(0);
 }
 
+/* Suppresses slide animation on first render when restoring saved state */
+.pf-panel--instant {
+  transition: none !important;
+}
+
 .pf-panel__header {
   display: flex;
   align-items: flex-start;

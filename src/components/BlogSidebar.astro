@@ -11,11 +11,7 @@ const FILTERS = [
 
 <nav class="pf-sidebar" aria-label="Site navigation">
   <div class="pf-sidebar__logo-wrap">
-    <a
-      href="/"
-      class="pf-sidebar__logo"
-      onclick="try{sessionStorage.removeItem('pf-state')}catch(_){}"
-    >dominikj111</a>
+    <a href="/" class="pf-sidebar__logo">dominikj111</a>
     <p class="pf-sidebar__tagline">Software Engineer</p>
   </div>
 
@@ -36,18 +32,3 @@ const FILTERS = [
   </div>
 </nav>
 
-<script is:inline>
-  // Read pf-state from sessionStorage and highlight whichever filters were active
-  (function () {
-    try {
-      const raw = sessionStorage.getItem('pf-state');
-      if (!raw) return;
-      const state = JSON.parse(raw);
-      const active = Array.isArray(state.filters) ? state.filters : [];
-      active.forEach(function (type) {
-        const btn = document.querySelector('[data-filter-type="' + type + '"]');
-        if (btn) btn.classList.add('pf-filter-btn--active');
-      });
-    } catch {}
-  })();
-</script>

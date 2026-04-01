@@ -3,6 +3,8 @@ import type { ContentItem } from '../../data/schema';
 interface FocusPanelProps {
   item: ContentItem | null;
   onClose: () => void;
+  /** Skip slide transition — used when restoring state on first render */
+  instant?: boolean;
 }
 
 const TYPE_LABELS: Record<string, string> = {
@@ -23,12 +25,16 @@ function renderContent(content: string) {
   ));
 }
 
-export default function FocusPanel({ item, onClose }: FocusPanelProps) {
+export default function FocusPanel({ item, onClose, instant = false }: FocusPanelProps) {
   const isOpen = item !== null;
 
   return (
     <aside
-      className={`pf-panel${isOpen ? ' pf-panel--open' : ''}`}
+      className={[
+        'pf-panel',
+        isOpen    ? 'pf-panel--open'    : '',
+        instant   ? 'pf-panel--instant' : '',
+      ].filter(Boolean).join(' ')}
       aria-label={item ? `Details: ${item.title}` : 'Content details'}
       aria-hidden={!isOpen}
       role="complementary"

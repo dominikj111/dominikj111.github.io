@@ -7,7 +7,8 @@ export interface PortfolioState {
   focusedId: string | null;
 }
 
-const KEY = 'pf-state';
+const KEY      = 'pf-state';
+const VIEW_KEY = 'pf-view';
 
 const DEFAULT: PortfolioState = {
   filters:   [],
@@ -17,9 +18,10 @@ const DEFAULT: PortfolioState = {
 
 export function loadState(): PortfolioState {
   try {
-    const raw = sessionStorage.getItem(KEY);
-    if (!raw) return { ...DEFAULT };
-    return { ...DEFAULT, ...JSON.parse(raw) };
+    const raw      = sessionStorage.getItem(KEY);
+    const session  = raw ? JSON.parse(raw) : {};
+    const viewMode = (localStorage.getItem(VIEW_KEY) as ViewMode | null) ?? DEFAULT.viewMode;
+    return { ...DEFAULT, ...session, viewMode };
   } catch {
     return { ...DEFAULT };
   }
@@ -28,7 +30,8 @@ export function loadState(): PortfolioState {
 export function saveState(state: PortfolioState): void {
   try {
     sessionStorage.setItem(KEY, JSON.stringify(state));
+    localStorage.setItem(VIEW_KEY, state.viewMode);
   } catch {
-    // sessionStorage unavailable — silently ignore
+    // storage unavailable — silently ignore
   }
 }
