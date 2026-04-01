@@ -5,6 +5,9 @@ interface FilterSidebarProps {
   onToggle: (type: ContentType) => void;
   onClear: () => void;
   items: ContentItem[];
+  searchInput: string;
+  onSearchInput: (value: string) => void;
+  onClearSearch: () => void;
 }
 
 const FILTERS: { type: ContentType; label: string }[] = [
@@ -62,7 +65,7 @@ const SOCIALS = [
   },
 ];
 
-export default function FilterSidebar({ activeFilters, onToggle, onClear, items }: FilterSidebarProps) {
+export default function FilterSidebar({ activeFilters, onToggle, onClear, items, searchInput, onSearchInput, onClearSearch }: FilterSidebarProps) {
   const countByType = (type: ContentType) => items.filter(i => i.type === type).length;
 
   return (
@@ -70,6 +73,29 @@ export default function FilterSidebar({ activeFilters, onToggle, onClear, items 
       <div className="pf-sidebar__logo-wrap">
         <a href="/" className="pf-sidebar__logo">dominikj111</a>
         <p className="pf-sidebar__tagline">Software Engineer</p>
+      </div>
+
+      <div className="pf-search-bar">
+        <svg className="pf-search-bar__icon" width="14" height="14" viewBox="0 0 15 15" fill="none" aria-hidden="true">
+          <circle cx="6.5" cy="6.5" r="4.5" stroke="currentColor" strokeWidth="1.5"/>
+          <line x1="10" y1="10" x2="14" y2="14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+        </svg>
+        <input
+          type="search"
+          className="pf-search-bar__input"
+          placeholder="title, description, tags…"
+          value={searchInput}
+          onChange={e => onSearchInput(e.target.value)}
+          aria-label="Search content"
+        />
+        {searchInput && (
+          <button className="pf-search-bar__clear" onClick={onClearSearch} aria-label="Clear search">
+            <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
+              <line x1="1" y1="1" x2="9" y2="9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+              <line x1="9" y1="1" x2="1" y2="9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+            </svg>
+          </button>
+        )}
       </div>
 
       <div>

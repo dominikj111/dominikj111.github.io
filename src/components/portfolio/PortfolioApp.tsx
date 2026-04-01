@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import type { ContentType } from '../../data/schema';
 import { CONTENT_ITEMS } from '../../data/content';
 import { isContentType } from '../../data/schema';
@@ -21,6 +21,7 @@ interface InitialState {
   focusedId: string | null;
   viewMode: ViewMode;
   pinnedViewMode: ViewMode;
+  searchQuery: string;
   /** True when state was restored from storage — suppresses panel slide animation */
   restored: boolean;
 }
@@ -32,6 +33,7 @@ function computeInitialState(): InitialState {
     focusedId:      null,
     viewMode:       'grid',
     pinnedViewMode: 'grid',
+    searchQuery:    '',
     restored:       false,
   };
 
@@ -44,8 +46,9 @@ function computeInitialState(): InitialState {
   const f      = params.get('f');
   const focus  = params.get('focus');
   const view   = params.get('v');
+  const q      = params.get('q') ?? '';
 
-  if (f || focus || view) {
+  if (f || focus || view || q) {
     const saved = loadState();
     return {
       introVisible:   false,
@@ -53,6 +56,7 @@ function computeInitialState(): InitialState {
       focusedId:      focus,
       viewMode:       view === 'table' ? 'table' : 'grid',
       pinnedViewMode: saved.pinnedViewMode,
+      searchQuery:    q,
       restored:       true,
     };
   }
@@ -65,7 +69,7 @@ function computeInitialState(): InitialState {
 
   if (fromArticle) {
     const saved    = loadState();
-    const hasState = saved.filters.length > 0 || saved.focusedId || saved.viewMode !== 'grid';
+    const hasState = saved.filters.length > 0 || saved.focusedId || saved.viewMode !== 'grid' || saved.searchQuery;
     if (hasState) {
       return {
         introVisible:   false,
@@ -73,6 +77,7 @@ function computeInitialState(): InitialState {
         focusedId:      null,
         viewMode:       saved.viewMode,
         pinnedViewMode: saved.pinnedViewMode,
+        searchQuery:    saved.searchQuery ?? '',
         restored:       false,
       };
     }
@@ -103,6 +108,10 @@ export default function PortfolioApp() {
   const [focusedId, setFocusedId]         = useState<string | null>(init.focusedId);
   const [viewMode, setViewMode]               = useState<ViewMode>(init.viewMode);
   const [pinnedViewMode, setPinnedViewMode]   = useState<ViewMode>(init.pinnedViewMode);
+  const [searchQuery, setSearchQuery]         = useState<string>(init.searchQuery);
+  // Raw input value — debounced into searchQuery
+  const [searchInput, setSearchInput] = useState<string>(init.searchQuery);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   // After first render, `instant` should be false so subsequent panel opens animate normally
   const instantRef = useRef(init.restored);
@@ -116,6 +125,7 @@ export default function PortfolioApp() {
     if (f.length > 0)              p.set('f', f.join(','));
     if (init.focusedId)            p.set('focus', init.focusedId);
     if (init.viewMode === 'table') p.set('v', 'table');
+    if (init.searchQuery)          p.set('q', init.searchQuery);
     const qs = p.toString();
     history.replaceState(null, '', qs ? `?${qs}` : window.location.pathname);
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -125,14 +135,15 @@ export default function PortfolioApp() {
   useEffect(() => {
     if (introVisible) return;
     const filters = [...activeFilters] as ContentType[];
-    saveState({ filters, viewMode, pinnedViewMode, focusedId });
+    saveState({ filters, viewMode, pinnedViewMode, focusedId, searchQuery });
     const p = new URLSearchParams();
     if (filters.length > 0)    p.set('f', filters.join(','));
     if (focusedId)              p.set('focus', focusedId);
     if (viewMode === 'table')   p.set('v', 'table');
+    if (searchQuery)            p.set('q', searchQuery);
     const qs = p.toString();
     history.replaceState(null, '', qs ? `?${qs}` : window.location.pathname);
-  }, [introVisible, activeFilters, focusedId, viewMode, pinnedViewMode]);
+  }, [introVisible, activeFilters, focusedId, viewMode, pinnedViewMode, searchQuery]);
 
   // Escape closes focus panel
   useEffect(() => {
@@ -159,6 +170,21 @@ export default function PortfolioApp() {
 
   const clearFilters = () => setActiveFilters(new Set());
 
+  const handleSearchInput = useCallback((value: string) => {
+    setSearchInput(value);
+    if (debounceRef.current !== undefined) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      setSearchQuery(value);
+      debounceRef.current = undefined;
+    }, 280);
+  }, []);
+
+  const clearSearch = useCallback(() => {
+    if (debounceRef.current !== undefined) { clearTimeout(debounceRef.current); debounceRef.current = undefined; }
+    setSearchInput('');
+    setSearchQuery('');
+  }, []);
+
   const pinnedItems    = CONTENT_ITEMS.filter(i => i.pinned);
   const focusedItem    = CONTENT_ITEMS.find(i => i.id === focusedId) ?? null;
   const filterSummary  = activeFilters.size > 0
@@ -177,6 +203,9 @@ export default function PortfolioApp() {
           onToggle={toggleFilter}
           onClear={clearFilters}
           items={CONTENT_ITEMS}
+          searchInput={searchInput}
+          onSearchInput={handleSearchInput}
+          onClearSearch={clearSearch}
         />
 
         <main className="pf-main">
@@ -234,6 +263,8 @@ export default function PortfolioApp() {
             focusedId={focusedId}
             onFocus={setFocusedId}
             onClearFilters={clearFilters}
+            searchQuery={searchQuery}
+            onClearSearch={clearSearch}
           />
         </main>
       </div>

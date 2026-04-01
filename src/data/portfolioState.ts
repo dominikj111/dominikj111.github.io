@@ -6,6 +6,7 @@ export interface PortfolioState {
   viewMode: ViewMode;
   pinnedViewMode: ViewMode;
   focusedId: string | null;
+  searchQuery: string;
 }
 
 const KEY             = 'pf-state';
@@ -17,6 +18,7 @@ const DEFAULT: PortfolioState = {
   viewMode:       'grid',
   pinnedViewMode: 'grid',
   focusedId:      null,
+  searchQuery:    '',
 };
 
 export function loadState(): PortfolioState {

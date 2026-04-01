@@ -1,5 +1,6 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { flushSync } from 'react-dom';
+import Fuse from 'fuse.js';
 import type { ContentItem, ContentType } from '../../data/schema';
 import ContentCard from './ContentCard';
 import ContentTable from './ContentTable';
@@ -13,11 +14,8 @@ interface ContentGridProps {
   focusedId: string | null;
   onFocus: (id: string) => void;
   onClearFilters: () => void;
-}
-
-function filterItems(items: ContentItem[], filters: Set<ContentType>): ContentItem[] {
-  if (filters.size === 0) return items;
-  return items.filter(i => filters.has(i.type));
+  searchQuery: string;
+  onClearSearch: () => void;
 }
 
 export default function ContentGrid({
@@ -27,24 +25,51 @@ export default function ContentGrid({
   focusedId,
   onFocus,
   onClearFilters,
+  searchQuery,
+  onClearSearch,
 }: ContentGridProps) {
+  const fuse = useMemo(
+    () =>
+      new Fuse(items, {
+        keys: [
+          { name: 'title',       weight: 2 },
+          { name: 'description', weight: 1.5 },
+          { name: 'tags',        weight: 1 },
+          { name: 'content',     weight: 0.5 },
+        ],
+        threshold: 0.35,
+        includeScore: true,
+      }),
+    [items],
+  );
+
+  function applyFilters(src: ContentItem[]): ContentItem[] {
+    let result = src;
+    const q = searchQuery.trim();
+    if (q) {
+      result = fuse.search(q).map(r => r.item);
+    }
+    if (activeFilters.size > 0) {
+      result = result.filter(i => activeFilters.has(i.type));
+    }
+    return result;
+  }
+
   const [visibleItems, setVisibleItems] = useState<ContentItem[]>(() =>
-    filterItems(items, activeFilters),
+    applyFilters(items),
   );
 
   const containerRef = useRef<HTMLDivElement>(null);
   const rafRef       = useRef<number | undefined>(undefined);
 
-  // Re-run when filters OR view mode changes
   const filterKey = [...activeFilters].sort().join(',');
-  const stateKey  = `${filterKey}|${viewMode}`;
+  const stateKey  = `${filterKey}|${searchQuery}`;
 
   useEffect(() => {
-    const next    = filterItems(items, activeFilters);
+    const next    = applyFilters(items);
     const nextKey = next.map(i => i.id).join(',');
     const currKey = visibleItems.map(i => i.id).join(',');
-    // Skip purely-visual viewMode changes (items unchanged) — no fade needed
-    if (nextKey === currKey && filterKey === stateKey.split('|')[0]) return;
+    if (nextKey === currKey) return;
 
     const el = containerRef.current;
     if (!el) { setVisibleItems(next); return; }
@@ -73,9 +98,10 @@ export default function ContentGrid({
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filterKey]);
+  }, [stateKey]);
 
   const isEmpty = visibleItems.length === 0;
+  const hasQuery = searchQuery.trim().length > 0;
 
   return (
     <div ref={containerRef} className="pf-content-container">
@@ -84,13 +110,18 @@ export default function ContentGrid({
           <div className="pf-grid-empty">
             <p className="pf-grid-empty__title">No results</p>
             <p className="pf-grid-empty__desc">
-              {activeFilters.size > 0
-                ? 'No content matches the selected filters.'
-                : 'No content yet.'}
+              {hasQuery
+                ? `Nothing matched "${searchQuery.trim()}".`
+                : activeFilters.size > 0
+                  ? 'No content matches the selected filters.'
+                  : 'No content yet.'}
             </p>
-            {activeFilters.size > 0 && (
-              <button className="pf-grid-empty__btn" onClick={onClearFilters}>
-                Clear filters
+            {(hasQuery || activeFilters.size > 0) && (
+              <button
+                className="pf-grid-empty__btn"
+                onClick={() => { onClearFilters(); onClearSearch(); }}
+              >
+                Clear {hasQuery && activeFilters.size > 0 ? 'search & filters' : hasQuery ? 'search' : 'filters'}
               </button>
             )}
           </div>
