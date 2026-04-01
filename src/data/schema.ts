@@ -17,6 +17,8 @@ export interface ContentItem {
   slug?: string;
   /** External URL (references / project homepage) */
   url?: string;
+  /** Pin to the featured section above the main stream */
+  pinned?: boolean;
   meta?: {
     status?: ProjectStatus;
     tech?: string[];

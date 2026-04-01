@@ -9,6 +9,7 @@ import LandingIntro from './LandingIntro';
 import FilterSidebar from './FilterSidebar';
 import ContentGrid from './ContentGrid';
 import FocusPanel from './FocusPanel';
+import PinnedSection from './PinnedSection';
 
 // ---------------------------------------------------------------------------
 // Synchronous initial state — runs before first paint (no useEffect needed)
@@ -19,17 +20,19 @@ interface InitialState {
   filters: Set<ContentType>;
   focusedId: string | null;
   viewMode: ViewMode;
+  pinnedViewMode: ViewMode;
   /** True when state was restored from storage — suppresses panel slide animation */
   restored: boolean;
 }
 
 function computeInitialState(): InitialState {
   const defaults: InitialState = {
-    introVisible: true,
-    filters: new Set(),
-    focusedId: null,
-    viewMode: 'grid',
-    restored: false,
+    introVisible:   true,
+    filters:        new Set(),
+    focusedId:      null,
+    viewMode:       'grid',
+    pinnedViewMode: 'grid',
+    restored:       false,
   };
 
   // During SSR window is not available — client:only means this never runs on
@@ -43,12 +46,14 @@ function computeInitialState(): InitialState {
   const view   = params.get('v');
 
   if (f || focus || view) {
+    const saved = loadState();
     return {
-      introVisible: false,
-      filters:      new Set((f ?? '').split(',').filter(isContentType) as ContentType[]),
-      focusedId:    focus,
-      viewMode:     view === 'table' ? 'table' : 'grid',
-      restored:     true,
+      introVisible:   false,
+      filters:        new Set((f ?? '').split(',').filter(isContentType) as ContentType[]),
+      focusedId:      focus,
+      viewMode:       view === 'table' ? 'table' : 'grid',
+      pinnedViewMode: saved.pinnedViewMode,
+      restored:       true,
     };
   }
 
@@ -63,19 +68,22 @@ function computeInitialState(): InitialState {
     const hasState = saved.filters.length > 0 || saved.focusedId || saved.viewMode !== 'grid';
     if (hasState) {
       return {
-        introVisible: false,
-        filters:      new Set(saved.filters),
-        focusedId:    null,
-        viewMode:     saved.viewMode,
-        restored:     false,
+        introVisible:   false,
+        filters:        new Set(saved.filters),
+        focusedId:      null,
+        viewMode:       saved.viewMode,
+        pinnedViewMode: saved.pinnedViewMode,
+        restored:       false,
       };
     }
   }
 
-  // No session state — still check localStorage for the persisted view preference
+  // No session state — still read localStorage for persisted view preferences
   try {
-    const view = localStorage.getItem('pf-view') as ViewMode | null;
-    if (view === 'table') defaults.viewMode = 'table';
+    const view       = localStorage.getItem('pf-view')        as ViewMode | null;
+    const pinnedView = localStorage.getItem('pf-pinned-view') as ViewMode | null;
+    if (view       === 'table') defaults.viewMode       = 'table';
+    if (pinnedView === 'table') defaults.pinnedViewMode = 'table';
   } catch {}
 
   return defaults;
@@ -93,7 +101,8 @@ export default function PortfolioApp() {
   const [introExiting, setIntroExiting] = useState(false);
   const [activeFilters, setActiveFilters] = useState<Set<ContentType>>(init.filters);
   const [focusedId, setFocusedId]         = useState<string | null>(init.focusedId);
-  const [viewMode, setViewMode]           = useState<ViewMode>(init.viewMode);
+  const [viewMode, setViewMode]               = useState<ViewMode>(init.viewMode);
+  const [pinnedViewMode, setPinnedViewMode]   = useState<ViewMode>(init.pinnedViewMode);
 
   // After first render, `instant` should be false so subsequent panel opens animate normally
   const instantRef = useRef(init.restored);
@@ -116,14 +125,14 @@ export default function PortfolioApp() {
   useEffect(() => {
     if (introVisible) return;
     const filters = [...activeFilters] as ContentType[];
-    saveState({ filters, viewMode, focusedId });
+    saveState({ filters, viewMode, pinnedViewMode, focusedId });
     const p = new URLSearchParams();
     if (filters.length > 0)    p.set('f', filters.join(','));
     if (focusedId)              p.set('focus', focusedId);
     if (viewMode === 'table')   p.set('v', 'table');
     const qs = p.toString();
     history.replaceState(null, '', qs ? `?${qs}` : window.location.pathname);
-  }, [introVisible, activeFilters, focusedId, viewMode]);
+  }, [introVisible, activeFilters, focusedId, viewMode, pinnedViewMode]);
 
   // Escape closes focus panel
   useEffect(() => {
@@ -150,6 +159,7 @@ export default function PortfolioApp() {
 
   const clearFilters = () => setActiveFilters(new Set());
 
+  const pinnedItems    = CONTENT_ITEMS.filter(i => i.pinned);
   const focusedItem    = CONTENT_ITEMS.find(i => i.id === focusedId) ?? null;
   const filterSummary  = activeFilters.size > 0
     ? [...activeFilters].map(f => f.charAt(0).toUpperCase() + f.slice(1) + 's').join(' + ')
@@ -170,6 +180,14 @@ export default function PortfolioApp() {
         />
 
         <main className="pf-main">
+          <PinnedSection
+            items={pinnedItems}
+            viewMode={pinnedViewMode}
+            onViewModeChange={setPinnedViewMode}
+            focusedId={focusedId}
+            onFocus={setFocusedId}
+          />
+
           <div className="pf-toolbar" aria-live="polite">
             <div className="pf-toolbar__label">
               <span className={`pf-toolbar__filter-text${filterSummary ? ' pf-toolbar__filter-text--visible' : ''}`}>
