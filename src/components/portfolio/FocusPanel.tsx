@@ -1,3 +1,4 @@
+import { useRef } from 'react';
 import type { ContentItem } from '../../data/schema';
 
 interface FocusPanelProps {
@@ -13,6 +14,15 @@ const TYPE_LABELS: Record<string, string> = {
   reference: 'Reference',
 };
 
+function getYouTubeId(url: string): string | null {
+  try {
+    const u = new URL(url);
+    if (u.hostname === 'youtu.be') return u.pathname.slice(1).split('?')[0];
+    if (u.hostname.includes('youtube.com')) return u.searchParams.get('v');
+  } catch {}
+  return null;
+}
+
 function formatDate(iso: string): string {
   return new Date(iso + 'T00:00:00').toLocaleDateString('en-US', {
     day: 'numeric', month: 'long', year: 'numeric',
@@ -26,7 +36,15 @@ function renderContent(content: string) {
 }
 
 export default function FocusPanel({ item, onClose, instant = false }: FocusPanelProps) {
-  const isOpen = item !== null;
+  const isOpen   = item !== null;
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+
+  const pauseYouTube = () => {
+    iframeRef.current?.contentWindow?.postMessage(
+      JSON.stringify({ event: 'command', func: 'pauseVideo', args: [] }),
+      '*',
+    );
+  };
 
   return (
     <aside
@@ -81,6 +99,23 @@ export default function FocusPanel({ item, onClose, instant = false }: FocusPane
             )}
           </div>
 
+          {/* YouTube embed */}
+          {item.url && (() => {
+            const ytId = getYouTubeId(item.url);
+            return ytId ? (
+              <div className="pf-panel__yt-embed">
+                <iframe
+                  ref={iframeRef}
+                  src={`https://www.youtube.com/embed/${ytId}?enablejsapi=1`}
+                  title={item.title}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                  loading="lazy"
+                />
+              </div>
+            ) : null;
+          })()}
+
           {/* Body */}
           <div className="pf-panel__body">
             <div className="pf-panel__content">
@@ -98,16 +133,20 @@ export default function FocusPanel({ item, onClose, instant = false }: FocusPane
                     Read article →
                   </a>
                 )}
-                {item.url && (
-                  <a
-                    href={item.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={`pf-panel__link ${item.slug ? 'pf-panel__link--outline' : 'pf-panel__link--primary'}`}
-                  >
-                    {item.type === 'reference' ? 'Visit →' : 'View project →'}
-                  </a>
-                )}
+                {item.url && (() => {
+                  const isYT = !!getYouTubeId(item.url!);
+                  return (
+                    <a
+                      href={item.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={`pf-panel__link ${item.slug ? 'pf-panel__link--outline' : 'pf-panel__link--primary'}`}
+                      onClick={isYT ? pauseYouTube : undefined}
+                    >
+                      {isYT ? 'Watch on YouTube →' : item.type === 'reference' ? 'Visit →' : 'View project →'}
+                    </a>
+                  );
+                })()}
               </div>
             )}
           </div>

@@ -105,6 +105,20 @@ export const CONTENT_ITEMS: ContentItem[] = [
     slug: 'using-mdx',
   },
 
+  // ── Videos ────────────────────────────────────────────────────────────────
+  {
+    id: 'video-morning-coffee',
+    type: 'reference',
+    title: 'Morning Coffee — The Good Life No.18',
+    description:
+      'Calm, uplifting chillout house lounge mix — good background music for a focused morning.',
+    content:
+      'A relaxing chillout house set perfect for starting the day. Happy, soothing background music that stays out of the way while you work.',
+    tags: ['music', 'chill', 'focus'],
+    createdAt: '2024-04-01',
+    url: 'https://www.youtube.com/watch?v=SSuCyZlksrI',
+  },
+
   // ── References ────────────────────────────────────────────────────────────
   {
     id: 'ref-astro',
