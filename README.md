@@ -1,173 +1,177 @@
-# Personal Portfolio & Blog
+# Portfolio + Blog — Astro GitHub Pages Template
 
-My personal GitHub Pages site - a portfolio, blog, and front-end sandbox built with **Astro**, **React**, and my custom **UI Components Library**.
+A portfolio and blog platform built with **Astro 5**, **React**, and **Tailwind CSS v4**.
+Deployable to GitHub Pages for free in minutes.
 
-🔗 **Live Site:** [dominikj111.github.io](https://dominikj111.github.io)
+Live demo: <https://dominikj111.github.io>
 
-## 🎯 Purpose
+---
 
-This site serves multiple purposes:
+## The idea
 
-- **Portfolio** - Showcase my projects (DesktopWeaver, Platonium, etc.)
-- **Blog** - Write about topics I'm curious about
-- **CV/Resume** - Professional background and experience
-- **Front-end Sandbox** - Experiment with new ideas and technologies
-- **Real-world Testing Ground** - First application using own [@ui-components-library](../my-saas/ui-components-library)
+Most personal sites treat projects, blog posts, and links as separate sections — a projects page, a blog page, a bookmarks page. You navigate between them. They live in silos.
 
-## 🛠️ Tech Stack
+This template is built around a different idea: **a single content stream where projects, articles, and references are first-class equal citizens**. Everything is in one filterable, searchable view. You open a detail panel without leaving the page. You share a URL that restores exactly the filter and focus state you had. The blog is part of the same space, not a separate destination.
 
-- **Framework:** [Astro](https://astro.build) - Content-focused static site generator
-- **UI Components:** Custom React components from `@ui-components-library/react`
-- **Styling:** Tailwind CSS v4 + DaisyUI
-- **Content:** MDX for blog posts and project pages
-- **Deployment:** GitHub Pages (static)
+It is closer to a personal knowledge hub than a traditional portfolio site.
 
-## 🏗️ Architecture
+### How it compares
 
-```()
-Astro (Static Site Generator)
-  ├── Static pages (.astro files)
-  ├── React islands (interactive components from ui-components-library)
-  └── MDX content (blog posts, project showcases)
+| Approach                     | Structure                                  | Navigation                    | Search                                    |
+| ---------------------------- | ------------------------------------------ | ----------------------------- | ----------------------------------------- |
+| **This template**            | Single unified stream; type filters        | In-page panel, no page reload | Inline fuzzy search (Fuse.js), URL-synced |
+| Docusaurus / Hugo / Jekyll   | Separate pages per section                 | Full page navigation          | Usually a separate search page or plugin  |
+| AstroPaper, Astrowind, Dante | Blog-first with optional portfolio section | Full page navigation          | Separate `/search` page                   |
+| Notion / Bear public pages   | Document tree                              | Click into each document      | Full-text within the tool                 |
+
+**Key differences:**
+
+- No "projects page" vs "blog page" separation — one stream, filter by type
+- Detail panel slides in over the content — context never lost
+- Filter + search + focused item all live in the URL — shareable, bookmarkable, back-button-safe
+- YouTube references embedded inline — not just links
+- Pure static output — no server, no database, no CMS account required
+
+---
+
+## Features
+
+- Filterable, searchable content stream (projects, articles, references)
+- Slide-in focus panel with YouTube embed support
+- Featured/pinned items section
+- Grid and table view modes, persisted across sessions
+- Full-text fuzzy search (Fuse.js) with URL state sync
+- Blog with MDX support, RSS feed, and sitemap
+- SEO: canonical URLs, Open Graph, JSON-LD structured data
+- Responsive — mobile sidebar collapses to top bar
+
+---
+
+## Use as a Template
+
+### 1. Fork or clone
+
+```bash
+git clone https://github.com/YOUR_USERNAME/YOUR_REPO.git my-blog
+cd my-blog
+pnpm install
 ```
 
-**Islands Architecture:** Most content is pre-rendered HTML. React components from the UI library are loaded only where interactivity is needed (`client:load`, `client:visible`).
+### 2. Personalise
 
-## 📁 Planned Structure
+Edit **`src/config.ts`** — this is the only file you need to change to make it yours:
 
-```()
-src/
-├── pages/
-│   ├── index.astro              # Homepage
-│   ├── about.astro              # About me / CV
-│   ├── projects/
-│   │   ├── index.astro          # Projects listing
-│   │   ├── desktop-weaver.astro # DesktopWeaver project
-│   │   └── platonium.astro      # Platonium platform
-│   └── blog/
-│       ├── [...slug].astro      # Blog post template
-│       └── index.astro          # Blog listing
-├── components/
-│   └── (React components from ui-components-library)
-├── layouts/
-│   ├── Layout.astro             # Base layout
-│   └── BlogPost.astro           # Blog post layout
-└── content/
-    └── blog/
-        ├── post-1.mdx
-        └── post-2.mdx
+```ts
+export const AUTHOR_NAME    = 'Your Name';
+export const SITE_HANDLE    = 'yourhandle';
+export const AUTHOR_TAGLINE = 'Your Role';
+export const SITE_TITLE     = 'yourhandle';
+export const SITE_DESCRIPTION = 'Your site description.';
+export const INTRO_SUBTEXT  = 'Your landing intro copy.';
+
+export const SOCIALS = [
+  { href: 'https://github.com/yourhandle', label: 'GitHub' },
+  // add more — see supported labels below
+];
 ```
 
-## 🎨 UI Components Library Integration
+Supported social icon labels (add SVG to the icon maps in `FilterSidebar.tsx` and `BlogSidebar.astro` for any new ones):
+`GitHub`, `LinkedIn`, `Reddit`, `crates.io`, `npm`
 
-This is the **first real-world application** using the custom UI Components Library.
+Update **`astro.config.mjs`**:
 
-### Interactive Components Need React Wrappers
+```js
+site: 'https://yourusername.github.io',
+```
 
-```tsx
-// src/components/InteractiveButton.tsx
-import { Button } from '@ui-components-library/react';
+### 3. Add your content
 
-export default function InteractiveButton() {
-  return (
-    <Button onClick={() => console.log('click')}>
-      Click me
-    </Button>
-  );
+Edit **`src/data/content.ts`** — append items to `CONTENT_ITEMS`:
+
+```ts
+{
+  id: 'my-project',
+  type: 'project',          // 'project' | 'article' | 'reference'
+  title: 'My Project',
+  description: 'One-line summary.',
+  content: 'Longer description.\n\nSupports paragraphs.',
+  tags: ['rust', 'cli'],
+  createdAt: '2024-06-01',
+  url: 'https://github.com/you/project',
+  pinned: true,             // appears in Featured section
 }
 ```
 
-```astro
+YouTube URLs are automatically detected — they render an embedded player in the focus panel.
+
+Write blog posts as Markdown/MDX in **`src/content/blog/`**.
+
+### 4. Deploy to GitHub Pages
+
+```bash
+pnpm run deploy
+```
+
+In your GitHub repo settings → **Pages**, set source to **Deploy from a branch**, branch `main`, folder `/docs`.
+
+Your site will be live at `https://yourusername.github.io`.
+
 ---
-import InteractiveButton from '../components/InteractiveButton.tsx';
+
+## Development
+
+```bash
+pnpm install   # install deps
+pnpm dev       # dev server → http://localhost:4321
+pnpm build     # build → docs/
+pnpm preview   # preview production build
+```
+
 ---
-<InteractiveButton client:load />
-```
 
-**Benefits:**
+## Tech Stack
 
-- Test library components in production
-- Shape the library based on real needs
-- Discover integration issues early
-- Demonstrate library capabilities
+| Layer         | Technology                             |
+| ------------- | -------------------------------------- |
+| Framework     | Astro 5 (static, `docs/` output)       |
+| Interactivity | React islands (`client:only`)          |
+| Styling       | Tailwind CSS v4 + DaisyUI + custom CSS |
+| Search        | Fuse.js (client-side fuzzy)            |
+| Content       | Astro content collections (MDX)        |
+| Deployment    | GitHub Pages                           |
 
-## 🚀 Development
+---
 
-```bash
-# Install dependencies
-pnpm install
+## Free Hosting Alternatives to GitHub Pages
 
-# Start dev server
-pnpm dev
+All of these support deploying a static site from a git repo with no payment required. The deploy model is the same — push to git, site rebuilds automatically.
 
-# Build for production
-pnpm build
+| Service              | CDN / Edge         | Free bandwidth | Notes                                                             |
+| -------------------- | ------------------ | -------------- | ----------------------------------------------------------------- |
+| **Cloudflare Pages** | Global edge (best) | Unlimited      | Strongest free tier; connect your cloned repo, output dir `docs/` |
+| **Vercel**           | Edge network       | 100 GB/mo      | Connect your cloned repo, set output dir to `docs/`               |
+| **Netlify**          | CDN                | 100 GB/mo      | Connect your cloned repo, set publish dir to `docs/`              |
+| **Render**           | CDN                | 100 GB/mo      | Static sites always-on on free plan                               |
+| **GitLab Pages**     | Minimal            | 10 GB/mo       | Push your clone to GitLab, configure CI to publish `docs/`        |
 
-# Preview production build
-pnpm preview
-```
+The workflow is the same for all of them — after you've set up your own repo (see [Use as a Template](#use-as-a-template) above):
 
-## Deploying a separate tool under a subpath (e.g. `/benchmark/`)
+1. Push your personalised repo to GitHub (or GitLab for GitLab Pages)
+2. Connect the repo to the hosting service dashboard
+3. Set the publish/output directory to `docs/` (the pre-built static output committed by `pnpm run deploy`), or configure the platform to run `pnpm build` itself and point at `docs/`
 
-Because this repo is a **user pages** repo (`dominikj111.github.io`), your site is served from the root:
+For **Cloudflare Pages** specifically (recommended for best global performance):
 
-- Main site: `https://dominikj111.github.io/`
-- Sub-tool: `https://dominikj111.github.io/benchmark/`
+1. Connect your GitHub repo in the Cloudflare dashboard
+2. Set build command: `pnpm build` and output directory: `docs/`
+3. Custom domain: add a CNAME in Cloudflare DNS — apex domains work too
 
-There are two good ways to host a “separate project” (like a benchmark tool) under a subdirectory.
+---
 
-Note: to run the deploy script in this repo, use `pnpm run deploy` (or `pnpm deploy:docs`). `pnpm deploy` is a different pnpm command and will error unless you’re inside a pnpm workspace.
+## Hosting Sub-apps Under a Subdirectory
 
-### Option A (simplest): drop prebuilt static files into `public/benchmark/`
+Because this is a user pages repo (`username.github.io`), the site lives at the root. To host a separate tool at `/benchmark/`:
 
-If your benchmark tool can be built to a folder containing `index.html` (and assets), copy the build output into:
+**Option A — drop static files:** Copy the built output into `public/benchmark/`. Astro will include it in `docs/benchmark/` on next build.
 
-- `public/benchmark/`
-
-Then run:
-
-```bash
-pnpm build
-```
-
-Astro will copy `public/benchmark/**` into the final output at `docs/benchmark/**`.
-
-### Option B (fully separate app build): build into `docs/benchmark/` *after* `astro build`
-
-If your benchmark is its own build system (Vite/React/etc.), configure it so that:
-
-1) Its asset base path is `/benchmark/`
-2) Its output directory is `../docs/benchmark` (relative to the benchmark project)
-3) You build **Astro first**, then the benchmark app (Astro clears `docs/` on build)
-
-Example for a Vite app living at `tools/benchmark/vite.config.ts`:
-
-```ts
-import { defineConfig } from 'vite';
-
-export default defineConfig({
-  // critical for GitHub Pages subdirectory hosting
-  base: '/benchmark/',
-  build: {
-    outDir: '../../docs/benchmark',
-    emptyOutDir: true,
-  },
-});
-```
-
-Build order:
-
-```bash
-pnpm build
-pnpm --dir tools/benchmark build
-```
-
-### GitHub Pages settings
-
-In GitHub repo settings → **Pages**, set:
-
-- Source: **Deploy from a branch**
-- Branch: your default branch (often `main`)
-- Folder: `/docs`
-
-If you want, I can wire this up end-to-end (scripts + optional GitHub Action) once you tell me what the benchmark tool is built with (Vite/React, plain HTML, another Astro app, etc.) and where its source lives.
+**Option B — separate build:** Configure the sub-tool with `base: '/benchmark/'` and `outDir` pointing to `docs/benchmark/`, then build Astro first (it clears `docs/`) and the sub-tool second.

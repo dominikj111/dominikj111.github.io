@@ -1,3 +1,5 @@
+import { AUTHOR_TAGLINE, INTRO_SUBTEXT } from '../../config';
+
 interface LandingIntroProps {
   exiting: boolean;
   onDismiss: () => void;
@@ -14,14 +16,11 @@ export default function LandingIntro({ exiting, onDismiss }: LandingIntroProps) 
       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') onDismiss(); }}
     >
       <div className="pf-intro__inner">
-        <p className="pf-intro__eyebrow">Software Engineer</p>
+        <p className="pf-intro__eyebrow">{AUTHOR_TAGLINE}</p>
         <h1 className="pf-intro__headline">
           Projects.<br />Articles.<br />References.
         </h1>
-        <p className="pf-intro__sub">
-          A knowledge hub for things I build, write about, and find worth sharing.
-          Identity emerges from the work.
-        </p>
+        <p className="pf-intro__sub">{INTRO_SUBTEXT}</p>
       </div>
       <p className="pf-intro__hint">Click anywhere to explore</p>
     </div>

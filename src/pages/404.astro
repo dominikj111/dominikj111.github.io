@@ -1,0 +1,22 @@
+---
+import BaseHead from '../components/BaseHead.astro';
+import { SITE_TITLE } from '../config';
+---
+
+<html lang="en">
+  <head>
+    <BaseHead title={`404 — ${SITE_TITLE}`} description="Page not found." />
+  </head>
+  <body class="pf-blog-body">
+    <main style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;gap:1.5rem;padding:2rem;text-align:center;">
+      <p style="font-size:4rem;font-weight:700;color:var(--pf-border);line-height:1;">404</p>
+      <h1 style="font-size:1.25rem;font-weight:600;color:var(--pf-text);margin:0;">Page not found</h1>
+      <p style="font-size:0.9rem;color:var(--pf-text-subtle);margin:0;">
+        The page you're looking for doesn't exist or has been moved.
+      </p>
+      <a href="/" style="font-size:0.85rem;color:var(--pf-primary);text-decoration:underline;text-underline-offset:3px;">
+        ← Back to home
+      </a>
+    </main>
+  </body>
+</html>

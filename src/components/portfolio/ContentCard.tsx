@@ -1,20 +1,10 @@
 import type { ContentItem } from '../../data/schema';
+import { TYPE_LABELS, formatDateShort } from './itemUtils';
 
 interface ContentCardProps {
   item: ContentItem;
   focused: boolean;
   onClick: () => void;
-}
-
-const TYPE_LABELS: Record<string, string> = {
-  project:   'Project',
-  article:   'Article',
-  reference: 'Reference',
-};
-
-function formatDate(iso: string): string {
-  const d = new Date(iso + 'T00:00:00');
-  return d.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
 }
 
 const MAX_TAGS = 3;
@@ -48,7 +38,7 @@ export default function ContentCard({ item, focused, onClick }: ContentCardProps
           )}
         </div>
         <time className="pf-card__date" dateTime={item.createdAt}>
-          {formatDate(item.createdAt)}
+          {formatDateShort(item.createdAt)}
         </time>
       </div>
     </button>

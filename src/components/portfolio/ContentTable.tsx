@@ -1,21 +1,10 @@
 import type { ContentItem } from '../../data/schema';
+import { TYPE_LABELS, formatDateMedium } from './itemUtils';
 
 interface ContentTableProps {
   items: ContentItem[];
   focusedId: string | null;
   onFocus: (id: string) => void;
-}
-
-const TYPE_LABELS: Record<string, string> = {
-  project:   'Project',
-  article:   'Article',
-  reference: 'Reference',
-};
-
-function formatDate(iso: string): string {
-  return new Date(iso + 'T00:00:00').toLocaleDateString('en-US', {
-    month: 'short', day: 'numeric', year: 'numeric',
-  });
 }
 
 const MAX_TAGS = 4;
@@ -68,7 +57,7 @@ export default function ContentTable({ items, focusedId, onFocus }: ContentTable
                 </div>
               </td>
               <td className="pf-table__td pf-table__td--date">
-                <time dateTime={item.createdAt}>{formatDate(item.createdAt)}</time>
+                <time dateTime={item.createdAt}>{formatDateMedium(item.createdAt)}</time>
               </td>
             </tr>
           );

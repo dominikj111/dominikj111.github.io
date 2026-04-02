@@ -1,32 +1,12 @@
 import { useRef } from 'react';
 import type { ContentItem } from '../../data/schema';
+import { TYPE_LABELS, formatDateLong, getYouTubeId } from './itemUtils';
 
 interface FocusPanelProps {
   item: ContentItem | null;
   onClose: () => void;
   /** Skip slide transition — used when restoring state on first render */
   instant?: boolean;
-}
-
-const TYPE_LABELS: Record<string, string> = {
-  project:   'Project',
-  article:   'Article',
-  reference: 'Reference',
-};
-
-function getYouTubeId(url: string): string | null {
-  try {
-    const u = new URL(url);
-    if (u.hostname === 'youtu.be') return u.pathname.slice(1).split('?')[0];
-    if (u.hostname.includes('youtube.com')) return u.searchParams.get('v');
-  } catch {}
-  return null;
-}
-
-function formatDate(iso: string): string {
-  return new Date(iso + 'T00:00:00').toLocaleDateString('en-US', {
-    day: 'numeric', month: 'long', year: 'numeric',
-  });
 }
 
 function renderContent(content: string) {
@@ -83,7 +63,7 @@ export default function FocusPanel({ item, onClose, instant = false }: FocusPane
           {/* Meta row */}
           <div className="pf-panel__meta">
             <time className="pf-panel__date" dateTime={item.createdAt}>
-              {formatDate(item.createdAt)}
+              {formatDateLong(item.createdAt)}
             </time>
             {item.meta?.status && (
               <span className={`pf-panel__status pf-panel__status--${item.meta.status}`}>

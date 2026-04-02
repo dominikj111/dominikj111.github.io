@@ -6,8 +6,8 @@ AI assistant instructions for this repository.
 
 ## Project Overview
 
-Personal portfolio + blog platform.
-Live site: **https://dominikj111.github.io**
+Personal portfolio + blog platform — also usable as a generic GitHub Pages template.
+Live site: <https://dominikj111.github.io>
 Framework: **Astro 5** (static output → `docs/`) with **React islands**.
 Styling: **Tailwind CSS v4** + **DaisyUI** + custom portfolio CSS.
 UI library: **@ui-components-library/react** (local workspace link, read-only from this project).
@@ -23,17 +23,37 @@ UI library: **@ui-components-library/react** (local workspace link, read-only fr
 
 ---
 
+## Personalisation — Single File
+
+All personal data lives in **`src/config.ts`**. This is the only file that needs editing when using this as a template:
+
+| Export | Purpose |
+| --- | --- |
+| `AUTHOR_NAME` | Full name — used in meta tags, JSON-LD, author fields |
+| `SITE_HANDLE` | Short handle / logo text in the sidebar |
+| `AUTHOR_TAGLINE` | One-line role shown under the logo and on the landing intro |
+| `SITE_TITLE` | `<title>` tag and OG site name |
+| `SITE_DESCRIPTION` | Default meta description |
+| `INTRO_SUBTEXT` | Body copy on the landing intro overlay |
+| `SOCIALS` | Array of `{ href, label }` — sidebar social links |
+
+Also update `site` in **`astro.config.mjs`** to your GitHub Pages URL.
+
+Social icons are SVG elements stored as lookup maps (keyed by `label`) in `FilterSidebar.tsx` and `BlogSidebar.astro`. Add a new entry to both maps when adding a new social platform to `config.ts`.
+
+---
+
 ## Color Palette — Strict System
 
 Do not change these values without explicit user approval.
 
-| Token         | Hex       | Role                                    |
-|---------------|-----------|-----------------------------------------|
-| `--pf-darkest`  | `#1f363d` | Dark teal — body text, dark backgrounds |
-| `--pf-primary`  | `#40798c` | Steel blue — links, buttons, accents    |
-| `--pf-secondary`| `#70a9a1` | Muted teal — secondary accents          |
-| `--pf-accent`   | `#9ec1a3` | Sage green — tags, soft highlights      |
-| `--pf-lightest` | `#cfe0c3` | Mint cream — subtle backgrounds         |
+| Token | Hex | Role |
+| --- | --- | --- |
+| `--pf-darkest` | `#1f363d` | Dark teal — body text, dark backgrounds |
+| `--pf-primary` | `#40798c` | Steel blue — links, buttons, accents |
+| `--pf-secondary` | `#70a9a1` | Muted teal — secondary accents |
+| `--pf-accent` | `#9ec1a3` | Sage green — tags, soft highlights |
+| `--pf-lightest` | `#cfe0c3` | Mint cream — subtle backgrounds |
 
 All portfolio styles use `--pf-*` CSS custom properties (defined in `portfolio.css`).
 `--uc-*` tokens are also overridden in `portfolio.css` to map the library components to this palette.
@@ -43,29 +63,45 @@ All portfolio styles use `--pf-*` CSS custom properties (defined in `portfolio.c
 ## Architecture
 
 ### Data Layer
+
+- **`src/config.ts`** — all personal/site identity data (single source of truth)
 - **`src/data/schema.ts`** — TypeScript types (`ContentItem`, `ContentType`, etc.)
-- **`src/data/content.ts`** — All content items (projects, articles, references) as a plain array
-- Content schema: `{ id, type, title, description, content, tags, createdAt, slug?, url?, meta? }`
+- **`src/data/content.ts`** — all content items as a plain array
+- **`src/data/portfolioState.ts`** — session/localStorage state persistence
+- Content schema: `{ id, type, title, description, content, tags, createdAt, slug?, url?, pinned?, meta? }`
 - Articles with a `slug` link to `/blog/{slug}` (Astro content collection)
-- `content` field: plain text, paragraphs separated by double newline `\n\n`
+- Items with a YouTube `url` get an embedded player in the focus panel
+- `content` field: plain text, paragraphs separated by `\n\n`
+
+### Shared Utilities
+
+- **`src/components/portfolio/itemUtils.ts`** — `TYPE_LABELS`, `FILTER_OPTIONS`, `formatDateShort/Medium/Long`, `getYouTubeId`
+
+Import from here — do not redefine these in individual components.
 
 ### Portfolio SPA (`src/components/portfolio/`)
-Mounted on `index.astro` with `client:load`.
+
+Mounted on `index.astro` with `client:only="react"`.
 
 | File | Purpose |
-|------|---------|
-| `PortfolioApp.tsx` | Root: state, URL sync, keyboard handling |
+| --- | --- |
+| `PortfolioApp.tsx` | Root: state, URL sync, debounced search, keyboard handling |
 | `LandingIntro.tsx` | Fixed overlay, fades out on click |
-| `FilterSidebar.tsx` | Sticky left sidebar with filter toggle buttons |
-| `ContentGrid.tsx` | CSS grid + two-phase filter animation |
+| `FilterSidebar.tsx` | Fixed left sidebar — search, filters, socials |
+| `ContentGrid.tsx` | CSS grid + Fuse.js search + two-phase filter animation |
 | `ContentCard.tsx` | Individual content card |
-| `FocusPanel.tsx` | Fixed right-side slide-in detail panel |
+| `ContentTable.tsx` | Table view |
+| `PinnedSection.tsx` | Featured/pinned items above the main stream |
+| `FocusPanel.tsx` | Fixed right-side slide-in detail panel; YouTube embed |
 | `portfolio.css` | All portfolio-specific styles |
+| `itemUtils.ts` | Shared formatting and label constants |
 
 ### Blog
+
 - Posts in `src/content/blog/` (Markdown/MDX)
 - Schema validated via `src/content.config.ts`
 - Rendered by `src/layouts/BlogPost.astro`
+- Sidebar: `src/components/BlogSidebar.astro`
 - RSS at `/rss.xml`
 
 ---
@@ -74,46 +110,46 @@ Mounted on `index.astro` with `client:load`.
 
 - **No masonry layout** — grid is always `repeat(3,1fr)` → `repeat(2,1fr)` → `1fr`
 - **No layout-reflow animations** — items only animate with `opacity` + `transform(scale)`
-- Filter changes: two-phase animation (exit 230ms → update DOM → enter fade)
-- Focus panel: `position:fixed` slide, never shifts the grid
+- Filter/search changes: two-phase animation (fade out → update DOM → fade in)
+- Focus panel: `position:fixed` slide-in from right, never shifts the grid
+- Sidebar: `position:fixed` left, always full viewport height — `margin-left:220px` on `.pf-main` and `.pf-blog-main` compensates
 
 ---
 
-## Filtering & URL State
+## Filtering, Search & URL State
 
-Active filters and focused item are reflected in the URL:
-- `?f=project,article` — active filter types
-- `?focus=desktop-weaver` — open focus panel for that item ID
-- URL is updated with `history.replaceState` (no page reload)
-- On page load, URL params are read to restore state (and skip the landing intro)
+Active state is reflected in the URL and persisted in `sessionStorage` (`pf-state`) / `localStorage` (`pf-view`, `pf-pinned-view`):
 
----
+| Param | Meaning |
+| --- | --- |
+| `?f=project,article` | Active type filters |
+| `?focus=item-id` | Open focus panel |
+| `?v=table` | Table view mode |
+| `?q=query` | Active search query |
 
-## UI Components Library Usage
+- URL updated with `history.replaceState` (no page reload)
+- Restored on back-navigation from `/blog/*` (referrer check)
+- `computeInitialState()` runs synchronously inside `useState()` — no flash on hydration
 
-Import only from `@ui-components-library/react`:
-```tsx
-import { Badge, FilterPill, EmptyState } from '@ui-components-library/react';
-import '@ui-components-library/react/styles'; // already imported in PortfolioApp.tsx
-```
+### Search
 
-Components currently used:
-- `Badge` — content type labels and tags (override via `className` for palette)
-- Library CSS is imported once in `PortfolioApp.tsx`; `--uc-*` vars remapped in `portfolio.css`
-
-When you find a new component in this portfolio that is **generic and reusable**, do not add it to the library directly — instead implement it here first and **suggest** moving it to the library (with a note in a comment or in the PR description).
+- Fuse.js fuzzy search on `title` (w:2), `description` (w:1.5), `tags` (w:1), `content` (w:0.5)
+- 280ms debounce on the input; search applied before type filters
+- Disabled (greyed out) on blog/article pages
 
 ---
 
 ## Adding Content
 
-To add a new content item, append to the `CONTENT_ITEMS` array in `src/data/content.ts`.
-Items are displayed in reverse chronological order (`createdAt` descending).
+Append to `CONTENT_ITEMS` in `src/data/content.ts`. Items render newest-first (`createdAt` descending).
 
 Content types:
+
 - `project` — software projects
 - `article` — blog posts (set `slug` to link to `/blog/{slug}`)
-- `reference` — external links worth bookmarking
+- `reference` — external links; YouTube URLs get an embedded player automatically
+
+Set `pinned: true` to appear in the Featured section above the stream.
 
 ---
 
@@ -131,10 +167,13 @@ pnpm run deploy     # build + deploy to GitHub Pages (NOT pnpm deploy)
 
 ## What To Suggest Moving to the UI Library
 
-If you build a component in this repo that is:
+If a component built here is:
+
 - Fully generic (no domain-specific data)
 - Reusable across different content structures
 - Relies only on CSS custom properties for theming
 
 ...suggest moving it to `@ui-components-library/react` rather than implementing it there directly.
-Examples that would qualify: `ContentCard`, `FocusPanel` (as a generic slide-in drawer), filter animation hook.
+Examples that qualify: `FocusPanel` (generic slide-in drawer), filter animation hook, `ContentCard`.
+
+The active extraction plan — including `SlidePanel`, `ViewToggle`, `SearchInput`, existing library components to pull in, and the desired end-state component tree — is in **`planning/slide-panel-ui-library.md`**.

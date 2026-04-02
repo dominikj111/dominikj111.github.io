@@ -4,6 +4,7 @@ import type { CollectionEntry } from 'astro:content';
 import BaseHead from '../components/BaseHead.astro';
 import BlogSidebar from '../components/BlogSidebar.astro';
 import FormattedDate from '../components/FormattedDate.astro';
+import { AUTHOR_NAME } from '../config';
 
 type Props = CollectionEntry<'blog'>['data'] & {
   /** When true the article body stretches to the full content area width */
@@ -31,12 +32,12 @@ const { title, description, pubDate, updatedDate, heroImage, wide = false } = As
       ...(updatedDate ? { "dateModified": updatedDate.toISOString() } : {}),
       "author": {
         "@type": "Person",
-        "name": "Dominik J.",
+        "name": AUTHOR_NAME,
         "url": Astro.site?.toString()
       },
       "publisher": {
         "@type": "Person",
-        "name": "Dominik J.",
+        "name": AUTHOR_NAME,
         "url": Astro.site?.toString()
       },
       "url": Astro.url.toString()
