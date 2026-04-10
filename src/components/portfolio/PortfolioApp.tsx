@@ -31,7 +31,7 @@ function computeInitialState(): InitialState {
     introVisible:   true,
     filters:        new Set(),
     focusedId:      null,
-    viewMode:       'grid',
+    viewMode:       'table',
     pinnedViewMode: 'grid',
     searchQuery:    '',
     restored:       false,
@@ -87,8 +87,8 @@ function computeInitialState(): InitialState {
   try {
     const view       = localStorage.getItem('pf-view')        as ViewMode | null;
     const pinnedView = localStorage.getItem('pf-pinned-view') as ViewMode | null;
-    if (view       === 'table') defaults.viewMode       = 'table';
-    if (pinnedView === 'table') defaults.pinnedViewMode = 'table';
+    if (view       === 'table' || view       === 'grid') defaults.viewMode       = view;
+    if (pinnedView === 'table' || pinnedView === 'grid') defaults.pinnedViewMode = pinnedView;
   } catch {}
 
   return defaults;

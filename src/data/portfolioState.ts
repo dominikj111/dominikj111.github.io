@@ -15,7 +15,7 @@ const PINNED_VIEW_KEY = 'pf-pinned-view';
 
 const DEFAULT: PortfolioState = {
   filters:        [],
-  viewMode:       'grid',
+  viewMode:       'table',
   pinnedViewMode: 'grid',
   focusedId:      null,
   searchQuery:    '',
