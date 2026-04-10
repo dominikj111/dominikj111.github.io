@@ -1,0 +1,39 @@
+# dominikj111.github.io
+
+Personal portfolio and blog by Dominik J., a Software Engineer.
+
+## What this site is
+
+A filterable content hub combining software projects, technical articles, and curated references in a single-page application. All content is browsable and searchable without an account.
+
+## Content types
+
+- **Projects** — software projects with descriptions, tech stack, and status
+- **Articles** — technical blog posts (full text at /blog/{slug})
+- **References** — curated external links and YouTube videos worth revisiting
+
+## Key pages
+
+- `/` — Portfolio SPA: filterable/searchable stream of all content, slide-in detail panel, featured items
+- `/blog/{slug}` — Full blog article pages (MDX)
+- `/rss.xml` — RSS feed of all blog posts
+- `/sitemap-index.xml` — Full sitemap
+
+## Navigation
+
+The portfolio is a React island (`client:only`). For crawlers without JavaScript:
+- A `<noscript>` block on the home page lists all content items as plain HTML
+- Blog articles are fully server-rendered Astro pages
+- All URLs are stable and shareable (`?f=`, `?q=`, `?focus=`, `?v=` params reflect active state)
+
+## Signals
+
+- Content is tagged — common tags include: rust, typescript, react, cli, open-source
+- Items marked `pinned` are featured/highlighted work
+- YouTube URLs in content items render an embedded player in the detail view
+
+## Author
+
+Dominik J. — Software Engineer
+GitHub: https://github.com/dominikj111
+LinkedIn: https://www.linkedin.com/in/dominikj111/
