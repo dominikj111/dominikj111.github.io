@@ -62,9 +62,11 @@ export default function FocusPanel({ item, onClose, instant = false }: FocusPane
 
           {/* Meta row */}
           <div className="pf-panel__meta">
-            <time className="pf-panel__date" dateTime={item.createdAt}>
-              {formatDateLong(item.createdAt)}
-            </time>
+            {item.createdAt && (
+              <time className="pf-panel__date" dateTime={item.createdAt}>
+                {formatDateLong(item.createdAt)}
+              </time>
+            )}
             {item.meta?.status && (
               <span className={`pf-panel__status pf-panel__status--${item.meta.status}`}>
                 {item.meta.status}

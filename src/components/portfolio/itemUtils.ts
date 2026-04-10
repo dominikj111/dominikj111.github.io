@@ -26,22 +26,25 @@ export const FILTER_OPTIONS: { type: ContentType; label: string }[] = [
 
 /** Short format: "Apr 2024" — used on cards */
 export function formatDateShort(iso: string): string {
+  if (!iso) return '';
   return new Date(iso + 'T00:00:00').toLocaleDateString('en-US', {
     month: 'short', year: 'numeric',
   });
 }
 
-/** Long format: "April 1, 2024" — used in the focus panel */
+/** Long format: "April 2024" — used in the focus panel */
 export function formatDateLong(iso: string): string {
+  if (!iso) return '';
   return new Date(iso + 'T00:00:00').toLocaleDateString('en-US', {
-    day: 'numeric', month: 'long', year: 'numeric',
+    month: 'long', year: 'numeric',
   });
 }
 
-/** Medium format: "Apr 1, 2024" — used in the table */
+/** Medium format: "Apr 2024" — used in the table */
 export function formatDateMedium(iso: string): string {
+  if (!iso) return '';
   return new Date(iso + 'T00:00:00').toLocaleDateString('en-US', {
-    month: 'short', day: 'numeric', year: 'numeric',
+    month: 'short', year: 'numeric',
   });
 }
 

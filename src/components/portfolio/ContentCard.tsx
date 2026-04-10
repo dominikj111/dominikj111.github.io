@@ -37,9 +37,11 @@ export default function ContentCard({ item, focused, onClick }: ContentCardProps
             <span className="pf-tag">+{extraCount}</span>
           )}
         </div>
-        <time className="pf-card__date" dateTime={item.createdAt}>
-          {formatDateShort(item.createdAt)}
-        </time>
+        {item.createdAt && (
+          <time className="pf-card__date" dateTime={item.createdAt}>
+            {formatDateShort(item.createdAt)}
+          </time>
+        )}
       </div>
     </button>
   );

@@ -1,85 +1,183 @@
 import type { ContentItem } from './schema';
 
 export const CONTENT_ITEMS: ContentItem[] = [
+  // ── Pinned / Featured ─────────────────────────────────────────────────────
+  {
+    id: 'engram',
+    type: 'project',
+    title: 'Engram',
+    description:
+      'A deterministic reasoning kernel — symbolic AI that navigates a directed concept graph, asks targeted breaking questions, and emits typed action contracts. No GPU, no API key, no retraining.',
+    content:
+      'Engram is a finite-state reasoning engine built around a directed graph of concepts. Given a query, it spreads activation through edges, resolves ambiguity via targeted breaking questions, and emits a typed action contract for a separate execution layer. Every reasoning path is auditable; same input always produces the same output.\n\nThe design sits at the intersection of expert systems, task-oriented dialogue, and reinforcement-learned policy graphs. Edge weights update from session feedback without retraining — or stay frozen for compliance deployments. Raw input text is discarded at the tokeniser boundary and never enters any storage layer: privacy is structural, not policy.',
+    tags: ['rust', 'ai', 'symbolic-ai', 'graph', 'reasoning', 'deterministic'],
+    createdAt: '2026-04-01',
+    pinned: true,
+    url: 'https://dominikj111.github.io/engram/',
+    meta: { status: 'active', tech: ['Rust', 'Graph traversal', 'Reinforcement learning'] },
+  },
+  {
+    id: 'weaver-desktop',
+    type: 'project',
+    title: 'Weaver Desktop',
+    description:
+      'A lightweight desktop environment for embedded Linux and SBCs. Pure GUI thin-client — all system operations delegated to the workmeshd daemon. Target footprint: <50 MB RAM.',
+    content:
+      'Weaver Desktop is built with Rust and egui for Raspberry Pi Zero, cyberdecks, kiosks, and resource-constrained Linux. The UI never touches privileged operations — it delegates hardware control, service management, and device abstraction to a system daemon. The same binary reshapes into a traditional desktop, kiosk, cyberdeck control panel, or industrial HMI through configuration templates.\n\nThe key design idea: Weaver doesn\'t know about GPIO pins or system services — it knows about devices and panels. A 230 V relay becomes "Desk Socket", an I2C sensor becomes "Current: 2.4 A". Part of the wider WorkMesh ecosystem alongside the workmeshd daemon and a planned secure P2P platform.',
+    tags: ['rust', 'egui', 'desktop', 'embedded', 'linux', 'raspberry-pi', 'iot'],
+    createdAt: '2026-03-01',
+    pinned: true,
+    url: 'https://github.com/dominikj111/Weaver-Desktop',
+    meta: { status: 'active', tech: ['Rust', 'egui', 'Linux', 'GPIO'] },
+  },
+  {
+    id: 'jigsawflow',
+    type: 'project',
+    title: 'JigsawFlow',
+    description:
+      'A capability-driven microkernel architecture for offline-first, hot-swappable, language-agnostic applications. Components access capabilities through trait/interface contracts via a singleton registry — no direct coupling.',
+    content:
+      'JigsawFlow inverts the traditional plugin model: the entire application is modular. A minimal microkernel enforces interface contracts, manages component lifecycle, and enables hot-swapping without restart. Components discover capabilities through a singleton registry and degrade gracefully when optional capabilities are missing — no catastrophic failures.\n\nInspired by PLC systems and automotive component standardisation. The long-term vision is a community-driven ecosystem where standardised trait/interface contracts let a Rust data-processing component interoperate with a PHP web component or an industrial PLC module — all hot-swappable, offline-first, fully auditable. Released CC0 (code) + CC BY-SA (documentation).',
+    tags: ['architecture', 'microkernel', 'modular', 'language-agnostic', 'offline-first', 'oss'],
+    createdAt: '2026-01-01',
+    pinned: true,
+    url: 'https://github.com/dominikj111/JigsawFlow',
+    meta: { status: 'active', tech: ['Rust', 'TypeScript', 'Language-agnostic spec'] },
+  },
+  {
+    id: 'singleton-registry',
+    type: 'project',
+    title: 'singleton-registry',
+    description:
+      'A thread-safe singleton registry crate for Rust. Create isolated registries for any type — the foundational primitive behind the JigsawFlow architecture. Published on crates.io.',
+    content:
+      '`define_registry!(name)` creates an isolated, thread-safe store for any type using `Arc` and `Mutex`. Each type has exactly one instance per registry. Values can be overridden at runtime — existing `Arc` references remain valid, enabling hot-swap of configurations and services without breaking in-flight operations.\n\nDesigned as the infrastructure layer for the JigsawFlow microkernel: consumers depend on trait contracts registered in the registry, never on concrete implementations. Also useful standalone for application singletons, test isolation (register mock implementations without mocking libraries), and shared resources across threads.',
+    tags: ['rust', 'crate', 'registry', 'singleton', 'jigsawflow', 'published'],
+    createdAt: '2026-02-01',
+    pinned: true,
+    url: 'https://crates.io/crates/singleton-registry',
+    meta: { status: 'active', tech: ['Rust'] },
+  },
+
   // ── Projects ──────────────────────────────────────────────────────────────
   {
     id: 'ui-components-library',
     type: 'project',
-    title: 'UI Components Library',
+    title: 'UI Components Library (private)',
     description:
       'A theming-first React component library built on Radix UI primitives and CSS custom properties — the design system powering this site.',
     content:
       'A monorepo component library designed for real-world SaaS applications. The core principle is that every visual attribute is driven by CSS custom properties, making the components drop-in compatible with any color system without modifying source code.\n\nThe library is organized into three packages: @ui-components-library/react (primitives + higher-level components), @ui-components-library/react-editors (rich-text, markdown, and code editors), and @ui-components-library/shared (utilities).\n\nBuilt on Radix UI for accessible primitives, class-variance-authority for variant management, and Lucide for iconography. The theming contract is strict: no hardcoded colors anywhere — only --uc-* CSS tokens that consumers can override at :root.',
     tags: ['react', 'typescript', 'design-system', 'radix-ui', 'monorepo'],
-    createdAt: '2023-09-01',
-    pinned: true,
-    url: 'https://github.com/dominikj111',
+    createdAt: '',
     meta: { status: 'active', tech: ['React', 'TypeScript', 'Radix UI', 'pnpm workspaces'] },
   },
   {
-    id: 'desktop-weaver',
+    id: 'iced-shell',
     type: 'project',
-    title: 'DesktopWeaver',
+    title: 'Iced Application Shell',
     description:
-      'A workspace orchestration tool for defining, saving, and restoring multi-application desktop layouts across projects and contexts.',
+      'A comprehensive application shell built with the iced GUI framework — modals, overlays, context menus, toast notifications, theming, and keyboard shortcuts. Reference implementation and reusable foundation for iced apps.',
     content:
-      'Context-switching between projects is expensive. DesktopWeaver lets you define a workspace as a declarative configuration — which applications open, where they sit on screen, which URLs load, which terminal sessions start — and restore the entire environment in one command.\n\nThe goal is to eliminate the "boot-up tax" when returning to a project after days away. Workspaces are defined as portable JSON/YAML files that can be committed alongside the project itself.',
-    tags: ['typescript', 'automation', 'productivity', 'electron'],
-    createdAt: '2024-03-01',
-    url: 'https://github.com/dominikj111',
-    meta: { status: 'wip', tech: ['TypeScript', 'Electron', 'Node.js'] },
+      'Iced Application Shell demonstrates production-ready patterns for Rust GUI development: a unified overlay system, context menus with smart edge-repositioning, slide-in animations, multiple colour themes (Dracula, Nord, Solarized, Gruvbox, Catppuccin, Tokyo Night), and adjustable typography. All interactions driven by keyboard shortcuts with clean message-based state updates.\n\nBuilt as both a learning resource and a practical starting point for new iced applications. The shell encapsulates the hard parts — focus management, toast lifecycle, window-size-aware positioning — so consuming code stays clean. A library crate extraction and Shell API are planned.',
+    tags: ['rust', 'iced', 'gui', 'desktop', 'reference', 'theming'],
+    createdAt: '2025-11-01',
+    url: 'https://github.com/dominikj111/iced-shell',
+    meta: { status: 'active', tech: ['Rust', 'iced', 'tokio'] },
   },
   {
-    id: 'platonium',
+    id: 'chart-sense',
     type: 'project',
-    title: 'Platonium',
+    title: 'Chart Sense',
     description:
-      'A platform for structured knowledge sharing — connecting people through ideas rather than profiles.',
+      'Reverse-engineer chart properties from PNG images using machine learning. Chart type classifier achieves 100% accuracy on controlled evaluation data. Designed for automated visual testing of chart rendering engines.',
     content:
-      'Platonium explores a different model for online knowledge exchange. Instead of building a social graph around people, it organizes content around ideas, arguments, and evidence — letting the quality of reasoning surface rather than the popularity of the author.\n\nThe platform is designed around structured discourse: claims link to supporting or opposing evidence, threads stay on-topic by design, and contributions are rated on clarity and logic rather than likes.',
-    tags: ['react', 'platform', 'knowledge-management', 'typescript'],
-    createdAt: '2024-01-15',
-    meta: { status: 'wip', tech: ['React', 'TypeScript', 'Node.js'] },
+      'Chart Sense takes a chart image and extracts structured properties — chart type, colours, labels, data values — using the best method for each property: sklearn Random Forest for classification, computer vision for colour extraction, OCR for text, and neural networks for complex visual patterns. The multi-method pipeline is modular: each extractor improves independently.\n\nTraining data is generated automatically via a ViteJS + ECharts frontend captured by Playwright — 1000+ labelled chart images produced without manual annotation. The sklearn classifier (100% accuracy, ~500 KB model) is production-ready; deep learning extractors for precise value reading are in development.',
+    tags: ['python', 'machine-learning', 'computer-vision', 'sklearn', 'playwright', 'testing'],
+    createdAt: '2026-02-01',
+    url: 'https://github.com/dominikj111/chart-sense',
+    meta: { status: 'active', tech: ['Python', 'sklearn', 'Playwright', 'TensorFlow', 'ViteJS'] },
   },
   {
-    id: 'personal-site',
+    id: 'graphql-query-builder',
     type: 'project',
-    title: 'This Site',
+    title: 'GraphQL Visual Query Builder',
     description:
-      'Personal knowledge hub and portfolio built with Astro, React islands, and the UI Components Library — the first real-world test of the design system.',
+      '"Learn GraphQL by shaping live data in a playful visual lab." A browser SPA with a Visual Query Builder, live GraphQL request payload panel, and result payload viewer backed by mocked generated data.',
     content:
-      'The site serves as both a portfolio and a living test environment for the UI Components Library. Every component placed on these pages is a real integration test.\n\nBuilt with Astro\'s islands architecture: the bulk of the page is pre-rendered static HTML; React components hydrate only where interactivity is needed. This keeps the JS payload minimal while preserving a rich interaction model.\n\nThe content stream layout, filter system, and focus panel are fully custom React — designed to be extracted into a reusable blogging platform when the patterns stabilize.',
-    tags: ['astro', 'react', 'typescript', 'tailwind', 'static-site'],
-    createdAt: '2024-06-01',
-    pinned: true,
-    url: 'https://dominikj111.github.io',
-    meta: { status: 'active', tech: ['Astro', 'React', 'Tailwind CSS v4', 'MDX'] },
+      'An interactive playground for learning GraphQL without a real backend. The Visual Query Builder lets you compose queries by selecting fields and arguments; the request and result panels update in real time against a mocked data layer. The aim is to make the request/response cycle tangible before connecting to a production API.\n\nBuilt with React and TypeScript on Vite. The mock data layer generates plausible structured responses, so learners can explore schema shapes and aliasing without any server setup.',
+    tags: ['graphql', 'react', 'typescript', 'visual-builder', 'learning'],
+    createdAt: '2026-04-01',
+    url: 'https://github.com/dominikj111/graphql',
+    meta: { status: 'wip', tech: ['React', 'TypeScript', 'GraphQL', 'ViteJS'] },
+  },
+  {
+    id: 'llm-sandbox',
+    type: 'project',
+    title: 'LLM Sandbox',
+    description:
+      'Personal LLM playground — Dockerised solutions for diffusion models, Jupyter Notebooks, and Llamafile. Run local AI models with zero host pollution.',
+    content:
+      'A collection of Docker Compose stacks for experimenting with local AI: image diffusion pipelines, Jupyter Notebook environments for data exploration, and Llamafile setups for running quantised language models entirely offline. Each stack is self-contained — start, experiment, remove, no residue on the host system.',
+    tags: ['docker', 'llm', 'ai', 'diffusion', 'jupyter', 'python'],
+    createdAt: '2025-01-01',
+    url: 'https://github.com/dominikj111/LLM',
+    meta: { status: 'active', tech: ['Docker', 'Python', 'Jupyter', 'Llamafile'] },
+  },
+  {
+    id: 'wave-docker-starter',
+    type: 'project',
+    title: 'Wave SaaS Docker Starter',
+    description:
+      'Production-ready Docker development environment for the Wave SaaS platform. Wave core stays pristine inside containers; all customisation via bind-mounted plugin and theme directories. One-command setup.',
+    content:
+      'The starter solves the Wave upgrade problem: keep the Wave core unmodified inside the container while developing plugins and themes via bind mounts. Child-parent theme inheritance means only changed components are overridden. Switching to a new Wave version is a container rebuild, not a merge conflict.\n\nFull stack out of the box: PHP 8.2, Nginx, MariaDB, phpMyAdmin, and Mailpit for email testing. Custom plugins ship in the `/plugins` directory and demonstrate real Laravel/Wave integration patterns. Environment configuration via `docker-compose.yml` overrides.',
+    tags: ['docker', 'laravel', 'php', 'saas', 'wave', 'devops'],
+    createdAt: '2025-12-01',
+    url: 'https://github.com/dominikj111/wave-docker-starter',
+    meta: { status: 'active', tech: ['Docker', 'PHP 8.2', 'Laravel', 'Nginx', 'MariaDB'] },
+  },
+  {
+    id: 'npm-simple-comparator',
+    type: 'project',
+    title: 'simple-comparator',
+    description:
+      'Lightweight JavaScript object comparison utility. Published on npm under BSD-3-Clause.',
+    content:
+      'A minimal, dependency-free utility for comparing JavaScript objects and values. Handles deep equality, type coercion edge cases, and circular references cleanly. Published and maintained on npm.',
+    tags: ['npm', 'javascript', 'typescript', 'utility', 'published'],
+    createdAt: '2026-02-01',
+    url: 'https://www.npmjs.com/package/simple-comparator',
+    meta: { status: 'active', tech: ['JavaScript', 'TypeScript', 'Node.js'] },
+  },
+  {
+    id: 'npm-prutill',
+    type: 'project',
+    title: 'prutill',
+    description:
+      'Utility library for common JavaScript/TypeScript programming tasks. Published on npm under Apache-2.0.',
+    content:
+      'A collection of focused utility functions for everyday JavaScript and TypeScript tasks — string manipulation, array helpers, and object utilities that are too small for dedicated packages but too useful to rewrite per project.',
+    tags: ['npm', 'javascript', 'typescript', 'utility', 'published'],
+    createdAt: '2025-04-01',
+    url: 'https://www.npmjs.com/package/prutill',
+    meta: { status: 'active', tech: ['JavaScript', 'TypeScript', 'Node.js'] },
+  },
+  {
+    id: 'npm-call-to-promise',
+    type: 'project',
+    title: 'call-to-promise',
+    description:
+      'Converts callback-based functions to Promise-based functions. Published on npm under BSD-3-Clause.',
+    content:
+      'A small utility that wraps Node.js-style callback APIs (last argument is `(err, result)`) into Promises without boilerplate. Useful for modernising legacy code or third-party libraries that haven\'t adopted the Promise/async pattern.',
+    tags: ['npm', 'javascript', 'typescript', 'async', 'promise', 'published'],
+    createdAt: '2025-03-01',
+    url: 'https://www.npmjs.com/package/call-to-promise',
+    meta: { status: 'active', tech: ['JavaScript', 'TypeScript', 'Node.js'] },
   },
 
   // ── Articles ──────────────────────────────────────────────────────────────
-  {
-    id: 'article-first-post',
-    type: 'article',
-    title: 'First Post',
-    description:
-      'Setting intentions for this space — what it is for, who it is for, and what I plan to write about.',
-    content:
-      'Every site needs a first post. This one is an introduction to the space itself: its purpose, its intended audience, and the rough shape of what will live here.\n\nExpect writing about software architecture, front-end craft, tool design, and the occasional deep-dive into ideas worth thinking through carefully.',
-    tags: ['meta'],
-    createdAt: '2022-07-08',
-    slug: 'first-post',
-  },
-  {
-    id: 'article-second-post',
-    type: 'article',
-    title: 'Second Post',
-    description: 'Continuing the exploration — follow-up thoughts from the first entry.',
-    content:
-      'A continuation of the first post, refining some of the initial framing and adding context to the goals of this site.\n\nWriting in public is a forcing function for clarity. If you cannot explain a thing in writing, you probably do not understand it as well as you thought.',
-    tags: ['meta', 'writing'],
-    createdAt: '2022-07-15',
-    slug: 'second-post',
-  },
   {
     id: 'article-markdown-guide',
     type: 'article',
@@ -91,18 +189,6 @@ export const CONTENT_ITEMS: ContentItem[] = [
     tags: ['writing', 'markdown', 'reference'],
     createdAt: '2022-08-01',
     slug: 'markdown-style-guide',
-  },
-  {
-    id: 'article-using-mdx',
-    type: 'article',
-    title: 'Using MDX',
-    description:
-      'How MDX enables mixing React components directly into Markdown — and when that is actually the right call.',
-    content:
-      'MDX bridges the gap between Markdown\'s readability and React\'s composability. This post explores when that bridge is worth crossing: interactive code samples, live charts, and context-aware callouts are good candidates; decorative animations are not.\n\nThe key discipline is restraint: MDX components should enhance comprehension, not compete with the text for attention.',
-    tags: ['mdx', 'react', 'writing'],
-    createdAt: '2022-08-15',
-    slug: 'using-mdx',
   },
 
   // ── Videos ────────────────────────────────────────────────────────────────
@@ -117,43 +203,5 @@ export const CONTENT_ITEMS: ContentItem[] = [
     tags: ['music', 'chill', 'focus'],
     createdAt: '2024-04-01',
     url: 'https://www.youtube.com/watch?v=SSuCyZlksrI',
-  },
-
-  // ── References ────────────────────────────────────────────────────────────
-  {
-    id: 'ref-astro',
-    type: 'reference',
-    title: 'Astro',
-    description:
-      'The web framework for content-driven sites. Ships zero JS by default; hydrates components on demand via the islands architecture.',
-    content:
-      'Astro is the right tool when content is the product. Its islands model lets you author in any framework (React, Vue, Svelte, Solid) while keeping the default output as lean static HTML.\n\nThe key insight behind Astro is that most of a content site\'s surface area does not need JavaScript at all — only the interactive islands do. This is a first-class constraint in the framework, not an optimization you bolt on afterwards.',
-    tags: ['framework', 'static-site', 'islands-architecture', 'performance'],
-    createdAt: '2024-02-01',
-    url: 'https://astro.build',
-  },
-  {
-    id: 'ref-radix-ui',
-    type: 'reference',
-    title: 'Radix UI',
-    description:
-      'Unstyled, accessible React primitives for building high-quality design systems. The foundation of the UI Components Library.',
-    content:
-      'Radix provides the hard parts — keyboard navigation, screen-reader labels, focus management, and ARIA semantics — so that component library authors can focus on visual design without re-implementing accessibility from scratch.\n\nThe primitives are deliberately unstyled. This makes them composable with any CSS approach: utility classes, CSS-in-JS, or the CSS custom property theming system used in this library.',
-    tags: ['react', 'accessibility', 'primitives', 'ui-library'],
-    createdAt: '2024-01-10',
-    url: 'https://www.radix-ui.com',
-  },
-  {
-    id: 'ref-islands-architecture',
-    type: 'reference',
-    title: 'Islands Architecture',
-    description:
-      'Jason Miller\'s model for shipping mostly static HTML with isolated interactive components — the pattern that makes Astro\'s performance story work.',
-    content:
-      'The islands architecture reimagines how we think about hydration. Rather than shipping a full React app and hydrating everything, you ship static HTML and only hydrate the interactive "islands" that actually need JS.\n\nThis cuts Time to Interactive dramatically for content-heavy sites and removes a whole class of hydration mismatch bugs. The mental model maps well to how users experience content: they read the page first, then interact with specific elements.',
-    tags: ['architecture', 'performance', 'static-site', 'hydration'],
-    createdAt: '2023-12-05',
-    url: 'https://jasonformat.com/islands-architecture',
   },
 ];

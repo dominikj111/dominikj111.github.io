@@ -57,7 +57,9 @@ export default function ContentTable({ items, focusedId, onFocus }: ContentTable
                 </div>
               </td>
               <td className="pf-table__td pf-table__td--date">
-                <time dateTime={item.createdAt}>{formatDateMedium(item.createdAt)}</time>
+                {item.createdAt && (
+                  <time dateTime={item.createdAt}>{formatDateMedium(item.createdAt)}</time>
+                )}
               </td>
             </tr>
           );
