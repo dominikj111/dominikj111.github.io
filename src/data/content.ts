@@ -101,15 +101,15 @@ export const CONTENT_ITEMS: ContentItem[] = [
   {
     id: 'graphql-query-builder',
     type: 'project',
-    title: 'GraphQL Visual Query Builder',
+    title: 'GraphQL Tiny Lab',
     description:
       '"Learn GraphQL by shaping live data in a playful visual lab." A browser SPA with a Visual Query Builder, live GraphQL request payload panel, and result payload viewer backed by mocked generated data.',
     content:
-      'An interactive playground for learning GraphQL without a real backend. The Visual Query Builder lets you compose queries by selecting fields and arguments; the request and result panels update in real time against a mocked data layer. The aim is to make the request/response cycle tangible before connecting to a production API.\n\nBuilt with React and TypeScript on Vite. The mock data layer generates plausible structured responses, so learners can explore schema shapes and aliasing without any server setup.',
+      'An interactive playground for learning GraphQL without a real backend. The Visual Query Builder lets you compose queries by selecting fields and arguments; the request and result panels update in real time against a mocked data layer. The aim is to make the request/response cycle tangible before connecting to a production API.\n\nBuilt with React and TypeScript on Vite. The mock data layer generates plausible structured responses, so learners can explore field selection, nesting, and query arguments without any server setup.',
     tags: ['graphql', 'react', 'typescript', 'visual-builder', 'learning'],
     createdAt: '2026-04-01',
     url: 'https://github.com/dominikj111/graphql',
-    meta: { status: 'wip', tech: ['React', 'TypeScript', 'GraphQL', 'ViteJS'] },
+    meta: { status: 'active', tech: ['React', 'TypeScript', 'GraphQL', 'ViteJS'] },
   },
   {
     id: 'llm-sandbox',
