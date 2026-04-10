@@ -54,7 +54,7 @@ function computeInitialState(): InitialState {
       introVisible:   false,
       filters:        new Set((f ?? '').split(',').filter(isContentType) as ContentType[]),
       focusedId:      focus,
-      viewMode:       view === 'table' ? 'table' : 'grid',
+      viewMode:       view === 'grid' ? 'grid' : 'table',
       pinnedViewMode: saved.pinnedViewMode,
       searchQuery:    q,
       restored:       true,
@@ -69,7 +69,7 @@ function computeInitialState(): InitialState {
 
   if (fromArticle) {
     const saved    = loadState();
-    const hasState = saved.filters.length > 0 || saved.focusedId || saved.viewMode !== 'grid' || saved.searchQuery;
+    const hasState = saved.filters.length > 0 || saved.focusedId || saved.viewMode !== 'table' || saved.searchQuery;
     if (hasState) {
       return {
         introVisible:   false,
@@ -83,11 +83,11 @@ function computeInitialState(): InitialState {
     }
   }
 
-  // No session state — still read localStorage for persisted view preferences
+  // No session state — read localStorage only for pinned view preference.
+  // Main viewMode is intentionally not persisted across sessions so the
+  // table default is always applied on fresh visits.
   try {
-    const view       = localStorage.getItem('pf-view')        as ViewMode | null;
     const pinnedView = localStorage.getItem('pf-pinned-view') as ViewMode | null;
-    if (view       === 'table' || view       === 'grid') defaults.viewMode       = view;
     if (pinnedView === 'table' || pinnedView === 'grid') defaults.pinnedViewMode = pinnedView;
   } catch {}
 

@@ -150,6 +150,7 @@ export const CONTENT_ITEMS: ContentItem[] = [
     tags: ['npm', 'javascript', 'typescript', 'utility', 'published'],
     createdAt: '2026-02-01',
     url: 'https://www.npmjs.com/package/simple-comparator',
+    siteUrl: 'https://dominikj111.github.io/simple-comparator-benchmark/',
     meta: { status: 'active', tech: ['JavaScript', 'TypeScript', 'Node.js'] },
   },
   {
@@ -177,6 +178,35 @@ export const CONTENT_ITEMS: ContentItem[] = [
     createdAt: '2025-03-01',
     url: 'https://www.npmjs.com/package/call-to-promise',
     meta: { status: 'active', tech: ['JavaScript', 'TypeScript', 'Node.js'] },
+  },
+
+  {
+    id: 'eduapps',
+    type: 'project',
+    title: 'EduApps',
+    description:
+      'A growing collection of educative browser applications for learning through play. Inspired by the Star Trek scene of a young Spock solving advanced equations in a Vulcan academy.',
+    content:
+      'EduApps packages small, focused learning tools as browser apps — no install, no account, just open and practise. The first app is a maths equation quiz aimed at young kids: simple arithmetic presented as a fast-paced challenge with immediate feedback.\n\nThe Spock inspiration is deliberate: learning hard things should feel like a game, not a test. Each app in the collection will target a specific concept — arithmetic, geometry, logic — and stay simple enough to be usable on any device.',
+    tags: ['education', 'browser-app', 'kids', 'math', 'javascript'],
+    createdAt: '2026-03-01',
+    url: 'https://github.com/dominikj111/eduapps',
+    siteUrl: 'https://dominikj111.github.io/eduapps/',
+    meta: { status: 'active', tech: ['JavaScript', 'HTML', 'CSS'] },
+  },
+  {
+    id: 'stepanka',
+    type: 'project',
+    title: 'Štěpánka\'s Gallery',
+    description:
+      'A browser app showing a kid\'s drawings in grid, timeline, and fullscreen slideshow views.',
+    content:
+      'A personal gallery app built for displaying children\'s artwork. Three views — grid, timeline, and a fullscreen slideshow — let you browse the collection at whatever pace feels right.\n\nBuilt as a lightweight, single-page browser app: no framework, no backend, just images and a bit of JavaScript. The fullscreen slideshow is the centrepiece — clean, distraction-free, and touch-friendly.',
+    tags: ['browser-app', 'gallery', 'kids', 'javascript'],
+    createdAt: '2026-03-01',
+    url: 'https://github.com/dominikj111/stepanka',
+    siteUrl: 'https://dominikj111.github.io/stepanka/',
+    meta: { status: 'active', tech: ['JavaScript', 'HTML', 'CSS'] },
   },
 
   // ── Articles ──────────────────────────────────────────────────────────────
