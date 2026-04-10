@@ -15,8 +15,10 @@ export interface ContentItem {
   updatedAt?: string;
   /** Blog slug → links to /blog/{slug} (articles only) */
   slug?: string;
-  /** External URL (references / project homepage) */
+  /** Primary URL — GitHub repo, reference link, or YouTube */
   url?: string;
+  /** Live site URL — shown as a second button alongside the GitHub url */
+  siteUrl?: string;
   /** Pin to the featured section above the main stream */
   pinned?: boolean;
   meta?: {

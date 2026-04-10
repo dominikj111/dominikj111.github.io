@@ -105,7 +105,7 @@ export default function FocusPanel({ item, onClose, instant = false }: FocusPane
             </div>
 
             {/* Actions */}
-            {(item.url || item.slug) && (
+            {(item.url || item.slug || item.siteUrl) && (
               <div className="pf-panel__actions">
                 {item.slug && (
                   <a
@@ -117,18 +117,29 @@ export default function FocusPanel({ item, onClose, instant = false }: FocusPane
                 )}
                 {item.url && (() => {
                   const isYT = !!getYouTubeId(item.url!);
+                  const hasSiteUrl = !!item.siteUrl;
                   return (
                     <a
                       href={item.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className={`pf-panel__link ${item.slug ? 'pf-panel__link--outline' : 'pf-panel__link--primary'}`}
+                      className={`pf-panel__link ${item.slug || hasSiteUrl ? 'pf-panel__link--outline' : 'pf-panel__link--primary'}`}
                       onClick={isYT ? pauseYouTube : undefined}
                     >
-                      {isYT ? 'Watch on YouTube →' : item.type === 'reference' ? 'Visit →' : 'View project →'}
+                      {isYT ? 'Watch on YouTube →' : item.type === 'reference' ? 'Visit →' : 'View on GitHub →'}
                     </a>
                   );
                 })()}
+                {item.siteUrl && (
+                  <a
+                    href={item.siteUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="pf-panel__link pf-panel__link--primary"
+                  >
+                    Visit live site →
+                  </a>
+                )}
               </div>
             )}
           </div>

@@ -13,7 +13,8 @@ export const CONTENT_ITEMS: ContentItem[] = [
     tags: ['rust', 'ai', 'symbolic-ai', 'graph', 'reasoning', 'deterministic'],
     createdAt: '2026-04-01',
     pinned: true,
-    url: 'https://dominikj111.github.io/engram/',
+    url: 'https://github.com/dominikj111/Engram',
+    siteUrl: 'https://dominikj111.github.io/engram/',
     meta: { status: 'active', tech: ['Rust', 'Graph traversal', 'Reinforcement learning'] },
   },
   {
@@ -108,7 +109,8 @@ export const CONTENT_ITEMS: ContentItem[] = [
       'An interactive playground for learning GraphQL without a real backend. The Visual Query Builder lets you compose queries by selecting fields and arguments; the request and result panels update in real time against a mocked data layer. The aim is to make the request/response cycle tangible before connecting to a production API.\n\nBuilt with React and TypeScript on Vite. The mock data layer generates plausible structured responses, so learners can explore field selection, nesting, and query arguments without any server setup.',
     tags: ['graphql', 'react', 'typescript', 'visual-builder', 'learning'],
     createdAt: '2026-04-01',
-    url: 'https://github.com/dominikj111/graphql',
+    url: 'https://github.com/dominikj111/graphql-tinylab',
+    siteUrl: 'https://dominikj111.github.io/graphql-tinylab',
     meta: { status: 'active', tech: ['React', 'TypeScript', 'GraphQL', 'ViteJS'] },
   },
   {
