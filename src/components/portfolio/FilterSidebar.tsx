@@ -110,6 +110,21 @@ export default function FilterSidebar({
         )}
       </div>
 
+      <div className="pf-sidebar__nav">
+        <a href="/about" className="pf-nav-link">About</a>
+      </div>
+
+      <div className="pf-sidebar__support">
+        <a
+          href="https://buymeacoffee.com/dominikj111"
+          className="pf-support-btn"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          ☕ Support my work
+        </a>
+      </div>
+
       <div className="pf-sidebar__socials">
         {SOCIALS.map(({ href, label }) => {
           const icon = SOCIAL_ICONS[label];

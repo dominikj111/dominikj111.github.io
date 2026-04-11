@@ -65,7 +65,7 @@ function computeInitialState(): InitialState {
   // Logo clicks (referrer = /) and fresh visits (no referrer) show the intro.
   const fromArticle =
     document.referrer !== '' &&
-    (() => { try { const u = new URL(document.referrer); return u.origin === window.location.origin && u.pathname.startsWith('/blog/'); } catch { return false; } })();
+    (() => { try { const u = new URL(document.referrer); return u.origin === window.location.origin && (u.pathname.startsWith('/blog/') || u.pathname.startsWith('/about')); } catch { return false; } })();
 
   if (fromArticle) {
     const saved    = loadState();

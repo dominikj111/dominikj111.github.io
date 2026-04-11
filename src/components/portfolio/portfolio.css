@@ -72,7 +72,7 @@ html {
   padding: 1.5rem 1.25rem 1.25rem;
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
+  gap: 1.0rem;
   z-index: 10;
 }
 
@@ -216,6 +216,59 @@ html {
 .pf-social-link:hover {
   color: var(--pf-primary);
   background: rgba(64, 121, 140, 0.08);
+}
+
+/* ── Sidebar nav link (e.g. About) ─────────────────────────────────────── */
+
+.pf-sidebar__nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.pf-nav-link {
+  display: block;
+  padding: 0.45rem 0.625rem;
+  border-radius: 7px;
+  font-size: 0.85rem;
+  color: var(--pf-text-muted);
+  text-decoration: none;
+  transition: background 0.15s ease, color 0.15s ease;
+  line-height: 1.4;
+}
+
+.pf-nav-link:hover {
+  background: rgba(207, 224, 195, 0.5);
+  color: var(--pf-darkest);
+}
+
+/* ── Support / Buy Me a Coffee button ──────────────────────────────────── */
+
+.pf-sidebar__support {
+  display: flex;
+}
+
+.pf-support-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  width: 100%;
+  padding: 0.45rem 0.75rem;
+  border-radius: 7px;
+  border: 1px solid var(--pf-border);
+  background: transparent;
+  color: var(--pf-text-muted);
+  font-size: 0.8rem;
+  font-family: inherit;
+  text-decoration: none;
+  transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+}
+
+.pf-support-btn:hover {
+  border-color: var(--pf-primary);
+  color: var(--pf-primary);
+  background: rgba(64, 121, 140, 0.05);
 }
 
 /* ── Main Content ──────────────────────────────────────────────────────── */
@@ -1052,6 +1105,21 @@ html {
     font-size: 0.8rem;
   }
 
+  .pf-sidebar__nav {
+    flex-direction: row;
+  }
+
+  .pf-sidebar__support {
+    width: auto;
+  }
+
+  .pf-support-btn {
+    width: auto;
+    white-space: nowrap;
+    padding: 0.35rem 0.6rem;
+    font-size: 0.78rem;
+  }
+
   .pf-main {
     margin-left: 0;
     padding: 1.25rem 1rem 3rem;
@@ -1248,6 +1316,11 @@ html {
 .pf-prose strong {
   font-weight: 700;
   color: var(--pf-darkest);
+}
+
+.pf-prose strong a,
+.pf-prose a strong {
+  color: var(--pf-primary);
 }
 
 .pf-prose code {
