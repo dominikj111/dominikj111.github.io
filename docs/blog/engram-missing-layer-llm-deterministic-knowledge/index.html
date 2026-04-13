@@ -1,0 +1,172 @@
+<!DOCTYPE html><html lang="en"> <head><!-- Global Metadata --><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><link rel="sitemap" href="/sitemap-index.xml"><link rel="alternate" type="application/rss+xml" title="dominikj111" href="https://dominikj111.github.io/rss.xml"><meta name="generator" content="Astro v5.16.7"><!-- Font preloads --><link rel="preload" href="/fonts/atkinson-regular.woff" as="font" type="font/woff" crossorigin><link rel="preload" href="/fonts/atkinson-bold.woff" as="font" type="font/woff" crossorigin><!-- Canonical URL --><link rel="canonical" href="https://dominikj111.github.io/blog/engram-missing-layer-llm-deterministic-knowledge/"><!-- Primary Meta Tags --><title>Engram: A Deterministic Operations Layer for LLM Agent Workflows — dominikj111</title><meta name="title" content="Engram: A Deterministic Operations Layer for LLM Agent Workflows — dominikj111"><meta name="description" content="A design proposal for Engram — a deterministic graph-based runtime that sits in front of LLMs, resolving recurring queries from confidence-weighted paths and serving as an agent mesh, tool gateway, and persistent memory layer."><meta name="author" content="Dominik J."><!-- Open Graph --><meta property="og:type" content="article"><meta property="og:site_name" content="dominikj111"><meta property="og:locale" content="en_US"><meta property="og:url" content="https://dominikj111.github.io/blog/engram-missing-layer-llm-deterministic-knowledge/"><meta property="og:title" content="Engram: A Deterministic Operations Layer for LLM Agent Workflows — dominikj111"><meta property="og:description" content="A design proposal for Engram — a deterministic graph-based runtime that sits in front of LLMs, resolving recurring queries from confidence-weighted paths and serving as an agent mesh, tool gateway, and persistent memory layer."><meta property="og:image" content="https://dominikj111.github.io/_astro/blog-placeholder-1.Bx0Zcyzv.jpg"><meta property="og:image:width" content="1020"><meta property="og:image:height" content="510"><meta property="article:published_time" content="2026-04-12T23:00:00.000Z"><meta property="article:author" content="Dominik J."><!-- Twitter / X --><meta name="twitter:card" content="summary_large_image"><meta name="twitter:url" content="https://dominikj111.github.io/blog/engram-missing-layer-llm-deterministic-knowledge/"><meta name="twitter:title" content="Engram: A Deterministic Operations Layer for LLM Agent Workflows — dominikj111"><meta name="twitter:description" content="A design proposal for Engram — a deterministic graph-based runtime that sits in front of LLMs, resolving recurring queries from confidence-weighted paths and serving as an agent mesh, tool gateway, and persistent memory layer."><meta name="twitter:image" content="https://dominikj111.github.io/_astro/blog-placeholder-1.Bx0Zcyzv.jpg"><!-- JSON-LD: WebSite (home page only) --><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"Engram: A Deterministic Operations Layer for LLM Agent Workflows","description":"A design proposal for Engram — a deterministic graph-based runtime that sits in front of LLMs, resolving recurring queries from confidence-weighted paths and serving as an agent mesh, tool gateway, and persistent memory layer.","datePublished":"2026-04-12T23:00:00.000Z","dateModified":"2026-04-12T23:00:00.000Z","author":{"@type":"Person","name":"Dominik J.","url":"https://dominikj111.github.io/"},"publisher":{"@type":"Person","name":"Dominik J.","url":"https://dominikj111.github.io/"},"url":"https://dominikj111.github.io/blog/engram-missing-layer-llm-deterministic-knowledge/"}</script><link rel="stylesheet" href="/_astro/about.BYEXsrvK.css"></head> <body class="pf-blog-body"> <div class="pf-blog-layout"> <nav class="pf-sidebar" aria-label="Site navigation"> <div class="pf-sidebar__logo-wrap"> <a href="/" class="pf-sidebar__logo">dominikj111</a> <p class="pf-sidebar__tagline">Software Engineer</p> </div> <div class="pf-search-bar"> <svg class="pf-search-bar__icon" width="14" height="14" viewBox="0 0 15 15" fill="none" aria-hidden="true"> <circle cx="6.5" cy="6.5" r="4.5" stroke="currentColor" stroke-width="1.5"></circle> <line x1="10" y1="10" x2="14" y2="14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></line> </svg> <input type="search" class="pf-search-bar__input" placeholder="title, description, tags…" disabled aria-label="Search content (not available on article pages)"> </div> <div> <p class="pf-sidebar__section-label">Browse</p> <div class="pf-sidebar__filters"> <a href="/?f=project" class="pf-filter-btn pf-filter-btn--project" data-filter-type="project"> <span class="pf-filter-btn__dot" aria-hidden="true"></span> <span class="pf-filter-btn__label">Projects</span> </a><a href="/?f=article" class="pf-filter-btn pf-filter-btn--article" data-filter-type="article"> <span class="pf-filter-btn__dot" aria-hidden="true"></span> <span class="pf-filter-btn__label">Articles</span> </a><a href="/?f=reference" class="pf-filter-btn pf-filter-btn--reference" data-filter-type="reference"> <span class="pf-filter-btn__dot" aria-hidden="true"></span> <span class="pf-filter-btn__label">References</span> </a> </div> </div> <div class="pf-sidebar__nav"> <a href="/about" class="pf-nav-link">About</a> </div> <div class="pf-sidebar__support"> <a href="https://buymeacoffee.com/dominikj111" class="pf-support-btn" target="_blank" rel="noopener noreferrer">
+☕ Support my work
+</a> </div> <div class="pf-sidebar__socials"> <a href="https://github.com/dominikj111" class="pf-social-link" target="_blank" rel="noopener noreferrer me" aria-label="GitHub" title="GitHub"> <svg viewBox="0 0 16 16" width="17" height="17" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg> </a><a href="https://www.linkedin.com/in/dominikj111/" class="pf-social-link" target="_blank" rel="noopener noreferrer me" aria-label="LinkedIn" title="LinkedIn"> <svg viewBox="0 0 16 16" width="17" height="17" fill="currentColor" aria-hidden="true"><path d="M0 1.146C0 .513.526 0 1.175 0h13.65C15.474 0 16 .513 16 1.146v13.708c0 .633-.526 1.146-1.175 1.146H1.175C.526 16 0 15.487 0 14.854zm4.943 12.248V6.169H2.542v7.225zm-1.2-8.212c.837 0 1.358-.554 1.358-1.248-.015-.709-.52-1.248-1.342-1.248S2.4 3.226 2.4 3.934c0 .694.521 1.248 1.327 1.248zm4.908 8.212V9.359c0-.216.016-.432.08-.586.173-.431.568-.878 1.232-.878.869 0 1.216.662 1.216 1.634v3.865h2.401V9.25c0-2.22-1.184-3.252-2.764-3.252-1.274 0-1.845.7-2.165 1.193v.025h-.016l.016-.025V6.169h-2.4c.03.678 0 7.225 0 7.225z"/></svg> </a><a href="https://www.reddit.com/user/domino_master/" class="pf-social-link" target="_blank" rel="noopener noreferrer me" aria-label="Reddit" title="Reddit"> <svg viewBox="0 0 16 16" width="17" height="17" fill="currentColor" aria-hidden="true"><path d="M6.167 8a.831.831 0 0 0-.83.83c0 .459.372.84.83.831a.831.831 0 0 0 0-1.661m1.843 3.647c.315 0 1.403-.038 1.976-.611a.232.232 0 0 0 0-.306.213.213 0 0 0-.306 0c-.353.363-1.126.487-1.67.487-.545 0-1.308-.124-1.671-.487a.213.213 0 0 0-.306 0 .213.213 0 0 0 0 .306c.564.573 1.652.61 1.977.61zm.992-2.807c0 .458.373.83.831.83.458 0 .83-.381.83-.83a.831.831 0 0 0-1.66 0z"/><path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.828-1.165c-.315 0-.602.124-.812.325-.801-.573-1.9-.945-3.121-.993l.534-2.501 1.738.372a.83.83 0 1 0 .83-.869.83.83 0 0 0-.744.468l-1.938-.41a.203.203 0 0 0-.153.028.186.186 0 0 0-.086.134l-.592 2.788c-1.24.038-2.358.41-3.17.992-.21-.2-.496-.324-.81-.324a1.163 1.163 0 0 0-.478 2.224c-.02.115-.029.23-.029.344 0 1.795 2.091 3.256 4.669 3.256 2.577 0 4.668-1.451 4.668-3.256 0-.114-.01-.238-.029-.344.528-.105.926-.601.926-1.108a1.163 1.163 0 0 0-1.165-1.116z"/></svg> </a><a href="https://crates.io/users/dominikj111" class="pf-social-link" target="_blank" rel="noopener noreferrer me" aria-label="crates.io" title="crates.io"> <svg viewBox="0 0 512 512" width="17" height="17" fill="currentColor" aria-hidden="true"><path d="M239.66 10.56a32 32 0 0 1 32.69 0l208 124.37A32 32 0 0 1 496 162.48v187.05a32 32 0 0 1-15.65 27.55l-208 124.37a32 32 0 0 1-32.69 0l-208-124.37A32 32 0 0 1 16 349.53V162.48a32 32 0 0 1 15.65-27.55zM256 64L80 166.4 256 268.8l176-102.4zm-176 224v102.4L256 492.8V390.4zm208 128.8 144-86.4V228.8l-144 86.4z"/></svg> </a><a href="https://www.npmjs.com/~domino2" class="pf-social-link" target="_blank" rel="noopener noreferrer me" aria-label="npm" title="npm"> <svg viewBox="0 0 16 16" width="17" height="17" fill="currentColor" aria-hidden="true"><path d="M0 0v16h16V0zm13.5 13.5h-3v-9h-3v9h-4.5v-12h10.5z"/></svg> </a> </div> </nav> <main class="pf-blog-main"> <a href="/" class="pf-blog-back">← Back</a> <article class="pf-blog-article"> <header class="pf-blog-article__header"> <div class="pf-blog-article__type-row"> <span class="pf-type-dot pf-type-dot--article" aria-hidden="true"></span> <span class="pf-type-label">Article</span> </div> <h1 class="pf-blog-article__title">Engram: A Deterministic Operations Layer for LLM Agent Workflows</h1> <div class="pf-blog-article__meta"> <time datetime="2026-04-12T23:00:00.000Z"> <time datetime="2026-04-12T23:00:00.000Z"> Apr 13, 2026 </time> </time> <span class="pf-blog-article__updated">
+Updated <time datetime="2026-04-12T23:00:00.000Z"> Apr 13, 2026 </time> </span> </div> </header>  <div class="pf-prose">  <p>Large language models are remarkable. They are also expensive per query, non-deterministic at runtime, and difficult to audit step by step. For many production workflows, that trade-off is unnecessary.</p>
+<p>Most real-world queries are repetitive and bounded: recurring error signatures, known workflow branches, familiar resolution paths. If a system has already seen a problem solved correctly, re-deriving the same reasoning through a full model call on every query is avoidable overhead.</p>
+<p><span style="display:inline-flex;align-items:center;gap:7px;"><span style="font-size:1.15em;font-weight:900;color:#2563eb;line-height:1;">Δ</span> <strong>Engram</strong></span> is a proposal for that gap: a deterministic operations layer between LLM agents and the workflows they drive.</p>
+<p>This article describes architecture and direction — not a finished product launch.</p>
+<h2 id="the-core-idea">The Core Idea</h2>
+<p>Instead of storing knowledge as raw text to be re-interpreted each time, Engram stores confirmed resolution patterns as an evolving directed graph.</p>
+<ul>
+<li>Nodes represent concepts, states, and decision points.</li>
+<li>Edges represent transitions with confidence weights.</li>
+<li>Confirmed outcomes strengthen paths; rejected or weak paths decay.</li>
+</ul>
+<p>At query time, the intended behavior is: activate relevant nodes, propagate through weighted edges, rank candidate solutions, and either return a confident answer or escalate when confidence remains below threshold.</p>
+<p>This is not “LLM replacement.” It is workload separation:</p>
+<ul>
+<li><strong>LLM</strong>: exploration of novel cases.</li>
+<li><strong>Engram</strong>: exploitation of known patterns.</li>
+</ul>
+<h2 id="how-a-query-moves-through-the-system">How a Query Moves Through the System</h2>
+<p>A query enters the graph first. The LLM is only called when bounded graph reasoning cannot resolve the case with sufficient confidence.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="text"><code><span class="line"><span>Query arrives</span></span>
+<span class="line"><span>  |</span></span>
+<span class="line"><span>  v</span></span>
+<span class="line"><span>Engram graph activation</span></span>
+<span class="line"><span>  |</span></span>
+<span class="line"><span>  +-- High confidence ------> Answer directly (no API call)</span></span>
+<span class="line"><span>  |</span></span>
+<span class="line"><span>  +-- Low confidence -------> Bounded graph loop</span></span>
+<span class="line"><span>            |</span></span>
+<span class="line"><span>            +-- Fetch actions + breaking questions + re-propagation</span></span>
+<span class="line"><span>            |</span></span>
+<span class="line"><span>            +-- Confidence rises ------> Answer directly</span></span>
+<span class="line"><span>            |</span></span>
+<span class="line"><span>            +-- Still unresolved ------> Structured handoff to LLM</span></span>
+<span class="line"><span>                                             |</span></span>
+<span class="line"><span>                                             v</span></span>
+<span class="line"><span>                                    Confirmed response writes back</span></span>
+<span class="line"><span>                                    into graph as a reusable path</span></span></code></pre>
+<p>The handoff is structured, not conversational: traversed path, eliminated candidates, confidence state, and accumulated context. As coverage grows, fewer queries should need model calls.</p>
+<p>Each low-confidence cycle can add structured fetch-action results or breaking-question answers mapped to node activations, then re-enter propagation with the union of prior and new activation sets. Termination is bounded by design: no candidates, exhausted reachable paths, or recursion-depth limit.</p>
+<h2 id="where-rag-and-llm-wikis-fall-short-intended-trajectory">Where RAG and LLM Wikis Fall Short <span style="font-size:11px;font-weight:600;color:#b45309;background:#fffbeb;border:1px solid #fde68a;border-radius:4px;padding:2px 8px;vertical-align:middle;margin-left:6px;">intended trajectory</span></h2>
+<p>RAG retrieves raw documents at query time and asks the model to re-derive an answer from scratch on every call. The LLM Wiki pattern improves on this by compiling knowledge into maintained Markdown vaults at ingest time — a genuine step forward. But both still require a model in the critical path at query time: RAG to interpret retrieved chunks, the wiki to read and synthesize compiled pages. Both produce stochastic output. Neither offers a typed contract or an auditable reasoning trace.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>Dimension</th><th>RAG</th><th>LLM Wiki</th><th>Engram</th></tr></thead><tbody><tr><td>When knowledge is processed</td><td>Query time</td><td>Ingest time</td><td>Session confirmation time</td></tr><tr><td>Query-time compute</td><td>Model re-derivation</td><td>Model interpretation of compiled pages</td><td>Graph traversal — no model needed</td></tr><tr><td>Determinism</td><td>No</td><td>No</td><td>Yes (same input + same graph state)</td></tr><tr><td>Output type</td><td>Chat response</td><td>Markdown narrative</td><td>Typed reasoning/action contract</td></tr><tr><td>Model dependency at query time</td><td>Always</td><td>Always</td><td>Only for novel cases</td></tr></tbody></table>
+<p>For bounded domains with recurring queries, Engram is designed to replace both patterns at the query layer. The goal is to remove the model from the critical path entirely for known signatures. A wiki may still serve as a human-readable reference, but the operational query path runs through the graph, not through prose interpretation.</p>
+<p>The deeper difference is what gets stored. A company wiki page compiled into an LLM Wiki remains prose — readable but not executable. Compiled into an Engram graph, what gets stored is the business logic encoded in the document: decision paths, escalation rules, approval gates, routing conditions. That logic becomes a typed, queryable structure any system can programmatically cooperate with — a frontend, a backend, a CI pipeline — all working from the same deterministic source. And because the graph produces typed output, an LLM can translate any query result into human-readable prose on demand: activate nodes with context, receive the resolved path and action contract, pass it to the model for rendering. The computation is Engram’s; the rendering is the model’s. The wiki stores what the organisation knows. The graph stores what the organisation <em>does</em>.</p>
+<h2 id="why-determinism-matters-for-operations">Why Determinism Matters for Operations</h2>
+<p>Determinism is often treated as optional in AI systems. In operational environments it is highly valuable — for two specific reasons.</p>
+<p><strong>Consistent outputs reduce cognitive load.</strong> When operating a system or following a runbook, people apply existing knowledge faster when the same query triggers the same classification, the same steps, the same terminology. Stochastic variation — even when both answers are correct — creates unnecessary overhead for the operator who has to re-parse and re-verify.</p>
+<p><strong>Reliable tooling requires deterministic foundations.</strong> A monitoring dashboard, a routing decision, an automated triage pipeline — each needs to trust that the same input produces the same classification and the same action. Building that reliability on stochastic output requires retries, consensus mechanisms, and output validation, each adding cost and complexity. Deterministic infrastructure reduces that overhead by design.</p>
+<h2 id="llm-agent-mesh">LLM Agent Mesh</h2>
+<p>The highest-value deployment target is Engram as the deterministic first pass in front of an LLM.</p>
+<p>In a well-trained bounded domain, the architecture is designed so that Engram handles the majority of queries without any model call. The LLM only sees cases that remain unresolved after the bounded loop — typically genuinely novel situations — and each one it resolves teaches the graph, making the next similar query cheaper.</p>
+<p>A fleet of specialist graphs coordinated by a router would form a deterministic sparse Mixture of Experts: large total knowledge, small per-query compute, every routing decision auditable. The model becomes a teaching signal for novel edges, not a permanent runtime dependency for every request.</p>
+<p>This is the division of labor that makes the architecture practical: the LLM explores novel space and teaches new paths; Engram exploits what is already known with deterministic, auditable, low-cost execution.</p>
+<h2 id="llm-tool-gateway--structural-security-boundary">LLM Tool Gateway — Structural Security Boundary</h2>
+<p>Current LLM tool security relies on system prompts and scattered runtime checks — mechanisms that a sufficiently adversarial input can circumvent. When an LLM calls Engram via MCP, the only operations available are those explicitly enumerated in the action contract. Permissions, rate limits, and confirmation requirements are declared in a policy file and enforced by a <code>PolicyEngine</code> before any execution layer call.</p>
+<p>The LLM cannot trigger an action outside the contract — not because a prompt says so, but because the execution pathway does not exist. Every action surface is enumerable before deployment; every blocked call is logged; the policy file is the complete audit record.</p>
+<p>This is guardrails by architecture, not by instruction.</p>
+<h2 id="persistent-memory-for-llm-agents-via-mcp">Persistent Memory for LLM Agents via MCP</h2>
+<p>Today’s LLMs carry memory in context windows (which reset every conversation) or flat files (static, unstructured). Engram exposed as an MCP tool is designed to give any LLM agent access to persistent, confidence-weighted, self-improving knowledge accumulated across sessions.</p>
+<p>The LLM calls <code>engram.query()</code> mid-reasoning and receives a typed reasoning path — confidence score, ruled-out candidates, resolved dimensions — not a text chunk. Multiple agents sharing one Engram instance share the graph (compressed patterns), never raw conversations. The graph learns from every LLM-confirmed answer, so queries that initially required model reasoning are intended to eventually resolve from Engram alone.</p>
+<p>This capability was not the original design goal — it emerged from the architecture. The same graph that serves as a deterministic operations layer also works as structured, queryable, self-improving memory.</p>
+<h2 id="industrial-domain-agents">Industrial Domain Agents</h2>
+<p>Bounded, high-stakes domains where determinism and auditability are regulatory requirements — medical triage routing, financial compliance screening, infrastructure fault isolation — present a specific challenge. LLMs of any size may not be permitted as sole reasoning engines in air-gapped, safety-critical, or regulated environments.</p>
+<p>Engram is formally a finite state machine with weighted transitions and an online learning mechanism — strictly weaker than a Turing machine, and that is the point. Turing completeness and the Halting Problem are inseparable; Engram guarantees termination within bounded steps. For regulated environments, that guarantee matters more than generality.</p>
+<p>The graph stores the domain; the policy engine enforces who can trigger which actions; the execution layer is separate. The graph files are plain JSON — a human can inspect, edit, or approve every node and edge. An LLM agent can propose new paths from escalation outcomes. A compliance officer can freeze the graph for audit. A domain expert can load a new knowledge file without touching the engine.</p>
+<h2 id="from-documents-to-knowledge-artifacts-intended-trajectory">From Documents to Knowledge Artifacts <span style="font-size:11px;font-weight:600;color:#b45309;background:#fffbeb;border:1px solid #fde68a;border-radius:4px;padding:2px 8px;vertical-align:middle;margin-left:6px;">intended trajectory</span></h2>
+<p>The previous section described compiling documents into an Engram graph. The deeper implication is what that compiled graph becomes: not a stored document, but a living runtime for the business logic encoded in it.</p>
+<p>Every process definition, compliance rule, approval policy, and escalation path the organisation operates by is currently embedded in prose — standards documents, runbooks, policy PDFs. That prose is passive. It waits to be read, interpreted, and applied correctly by whoever needs it. Engram proposes making it active: encode the logic into the graph once, and from that point any system — an API, a backend service, a CI pipeline, a monitoring agent — can query it directly and receive a deterministic, typed answer based on the current graph state.</p>
+<p>This is a business logic runtime. When approvals change, the graph changes. Every downstream system that queries it immediately reflects the new rules without a deployment cycle or a documentation update. The graph is always current because it is updated from confirmed sessions, not maintained as separate documentation.</p>
+<p>The same graph serves human readers too. A manager asking “what is the current escalation policy for a payment dispute over €500?” does not get a graph traversal — they get the graph’s typed result passed to an LLM, which renders a clear, consistent prose answer. Not a search result. Not a wiki page that may be outdated. A real-time response derived from the same logic that gates the automated systems. Engram works as both a business logic service and an always-current wiki — from the same source.</p>
+<h2 id="lmi--llm-machine-interface">LMI — LLM Machine Interface</h2>
+<p>The HMI concept is foundational in industrial engineering: a Human-Machine Interface is the layer through which human operators interact with machines and processes — buttons, screens, control panels. It is bounded, auditable, and deliberately limited: operators can only do what the interface exposes.</p>
+<p>LLMs increasingly need the same kind of interface when interacting with machines and operational systems. Without it, an LLM calling tools has unconstrained access — limited only by system prompts and runtime checks that adversarial inputs can circumvent. Engram proposes the equivalent layer for LLM-to-machine interaction:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="text"><code><span class="line"><span>HMI:  Human  -->  physical controls / screens    -->  Machine / Process</span></span>
+<span class="line"><span>LMI:  LLM    -->  Engram knowledge graph          -->  Machine / Process</span></span></code></pre>
+<p>Where HMI bounds what a human can do through a designed interface, <strong>LMI — LLM Machine Interface</strong> bounds what an LLM can do through a deterministic knowledge graph. The graph defines every operation that exists, what path leads to it, what confidence is required, and what policy gates apply. The LLM navigates the graph rather than calling arbitrary functions. A human operator navigating the same graph through a CLI receives the same deterministic path and the same policy constraints.</p>
+<p>This matters most in the domains — industrial control, safety-critical infrastructure, regulated financial systems — where “the LLM should never be able to do X” must be a structural guarantee rather than a configurable instruction. The graph is designed and audited before deployment. The LLM reasons within it, not around it. <strong>LMI is proposed terminology, not an established standard</strong> — but the pattern it describes is well-established in every domain where determinism in operations is non-negotiable.</p>
+<h2 id="privacy-by-architecture">Privacy by Architecture</h2>
+<p>Engram’s privacy model is designed to follow from data representation, not policy:</p>
+<ul>
+<li>Caller input text is intended to be discarded at the tokeniser boundary.</li>
+<li>What the graph stores is activation patterns, transitions, and outcomes — not words, not who was involved, not what was typed.</li>
+<li>Raw conversational payload is not intended to be persisted.</li>
+</ul>
+<p>After 30 engineers hit the same error and confirm the same fix, the graph holds an edge weight and a session count. The 30 people who contributed are structurally absent — not scrubbed, never recorded. There is no raw content to leak because raw content never exists in storable form.</p>
+<h2 id="current-state--honest-status">Current State — Honest Status</h2>
+<p>Engram is in early implementation (Phase 1 of 15).</p>
+<p>What exists today:</p>
+<ul>
+<li>Rust binary and project skeleton.</li>
+<li>Real graph files loaded for a bounded error domain (19 nodes, 17 edges).</li>
+<li>Keyword lookup with optional reasoning trace.</li>
+<li>Complete architecture documentation and phase roadmap.</li>
+</ul>
+<p>What does not exist yet:</p>
+<ul>
+<li>Full activation propagation engine.</li>
+<li>Breaking-question loop.</li>
+<li>Session reinforcement learning.</li>
+<li>MCP integration.</li>
+</ul>
+<p>This is a design proposal published in public, not a product launch. The roadmap has 15 phases; the engine is built to be filled in, not redesigned.</p>
+<h2 id="open-questions">Open Questions</h2>
+<p>Several hard problems remain and should be explicit:</p>
+<ul>
+<li><strong>Graph authoring</strong> from large standards and process documents is a significant effort — comparable to writing traditional code for the same domain. The tooling story is not yet written.</li>
+<li><strong>Tokeniser fallback</strong> for rich action outputs is fragile outside controlled vocabularies. Structured mapping is the reliable path; the tokeniser fallback is an escape hatch with known limitations.</li>
+<li><strong>Coverage figures</strong> (80–95% of queries resolvable from the graph in well-covered domains) are informed projections, not measured results. Production measurements do not yet exist.</li>
+<li><strong>LMI terminology</strong> is proposed framing, not established standard language. The pattern is real; the name is ours.</li>
+<li><strong>The persona analogy</strong> — Engram as “wired operational persona” — captures something real about stored decision patterns, but a full human persona includes dimensions that live in the stochastic LLM layer, not a deterministic graph. The framing is useful; it is not a scientific claim.</li>
+</ul>
+<h2 id="conclusion">Conclusion</h2>
+<p>LLMs are excellent at novelty. Operations reward determinism.</p>
+<p>Engram proposes a missing gear in the current LLM stack: compile repeated reasoning into an auditable graph, expose it as an agent mesh, tool gateway, and persistent memory layer, reserve model calls for truly novel cases, and continuously convert novel outcomes into deterministic paths.</p>
+<p>If LLMs are the adaptive layer, Engram is proposed as the deterministic operations layer — queryable, inspectable, and designed for production contexts where consistency, auditability, and bounded execution matter.</p>
+<h2 id="further-reading">Further Reading</h2>
+<a href="https://dominikj111.github.io/engram/" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;gap:9px;padding:11px 22px;background:#0f172a;color:#fff;border-radius:8px;text-decoration:none;font-weight:600;font-size:15px;margin-bottom:20px;">
+  <span style="font-size:18px;font-weight:900;color:#2563eb;line-height:1;">Δ</span>
+  Engram — Live demos &#x26; simulations ↗
+</a>
+<ul>
+<li><a href="https://github.com/dominikj111/Engram">Repository</a></li>
+<li><a href="https://github.com/dominikj111/Engram/blob/main/docs/proposal.md">Design proposal</a></li>
+<li><a href="https://github.com/dominikj111/Engram/blob/main/docs/use_cases.md">Use cases (10 deployment contexts)</a></li>
+<li><a href="https://github.com/dominikj111/Engram/blob/main/docs/architecture.md">Architecture</a></li>
+<li><a href="https://github.com/dominikj111/Engram/blob/main/docs/roadmap.md">Roadmap (15 phases)</a></li>
+<li><a href="https://github.com/dominikj111/Engram/blob/main/CONTRIBUTING.md">Contributing</a></li>
+</ul>  </div> </article> </main> </div> </body></html>
