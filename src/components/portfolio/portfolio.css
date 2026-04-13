@@ -1310,6 +1310,7 @@ html {
 }
 
 .pf-prose a:hover {
+  color: var(--pf-primary);
   text-decoration-color: var(--pf-primary);
 }
 

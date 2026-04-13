@@ -222,6 +222,18 @@ export const CONTENT_ITEMS: ContentItem[] = [
     createdAt: '2022-08-01',
     slug: 'markdown-style-guide',
   },
+  {
+    id: 'article-engram-missing-layer',
+    type: 'article',
+    title: 'Engram: A Deterministic Operations Layer for LLM Agent Workflows',
+    description:
+      'A design proposal for Engram as a deterministic graph-based runtime for LLM agent workflows — covering agent mesh, tool gateway, persistent memory via MCP, and industrial domain agents.',
+    content:
+      'Engram proposes a deterministic operations layer between LLM agents and the workflows they drive. The article covers the agent mesh pattern, structural tool security via action contracts, persistent memory for LLM agents via MCP, industrial domain agents, the LMI (LLM Machine Interface) concept, and how graph-based compilation complements RAG and LLM Wiki approaches.\n\nPositioning is explicit: this is an early-stage design proposal, not a product launch, with clear boundaries between what exists today and what is planned.',
+    tags: ['engram', 'llm', 'deterministic', 'mcp', 'agent-mesh', 'operations', 'architecture'],
+    createdAt: '2026-04-13',
+    slug: 'engram-missing-layer-llm-deterministic-knowledge',
+  },
 
   // ── Videos ────────────────────────────────────────────────────────────────
   {
