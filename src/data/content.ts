@@ -232,7 +232,7 @@ export const CONTENT_ITEMS: ContentItem[] = [
       'Engram proposes a deterministic operations layer between LLM agents and the workflows they drive. The article covers the agent mesh pattern, structural tool security via action contracts, persistent memory for LLM agents via MCP, industrial domain agents, the LMI (LLM Machine Interface) concept, and how graph-based compilation complements RAG and LLM Wiki approaches.\n\nPositioning is explicit: this is an early-stage design proposal, not a product launch, with clear boundaries between what exists today and what is planned.',
     tags: ['engram', 'llm', 'deterministic', 'mcp', 'agent-mesh', 'operations', 'architecture'],
     createdAt: '2026-04-13',
-    slug: 'engram-missing-layer-llm-deterministic-knowledge',
+    slug: 'engram-deterministic-operations-layer-for-llm-agent-workflows',
   },
 
   // ── Videos ────────────────────────────────────────────────────────────────
