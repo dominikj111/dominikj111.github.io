@@ -41,7 +41,16 @@ function computeInitialState(): InitialState {
   // server, but guard defensively anyway.
   if (typeof window === 'undefined') return defaults;
 
-  // Explicit URL params (shared link) take highest precedence
+  // Detect navigation back from an article/about page early — needed to
+  // suppress focus restoration even when URL params are present (browser
+  // back button restores the previous URL including ?focus=id).
+  const fromArticle =
+    document.referrer !== '' &&
+    (() => { try { const u = new URL(document.referrer); return u.origin === window.location.origin && (u.pathname.startsWith('/blog/') || u.pathname.startsWith('/about')); } catch { return false; } })();
+
+  // Explicit URL params (shared link) take highest precedence,
+  // EXCEPT the focus param is suppressed when returning from an article so
+  // the browser back button doesn't reopen a panel the user navigated away from.
   const params = new URLSearchParams(window.location.search);
   const f      = params.get('f');
   const focus  = params.get('focus');
@@ -53,7 +62,7 @@ function computeInitialState(): InitialState {
     return {
       introVisible:   false,
       filters:        new Set((f ?? '').split(',').filter(isContentType) as ContentType[]),
-      focusedId:      focus,
+      focusedId:      fromArticle ? null : focus,
       viewMode:       view === 'grid' ? 'grid' : 'table',
       pinnedViewMode: saved.pinnedViewMode,
       searchQuery:    q,
@@ -63,9 +72,6 @@ function computeInitialState(): InitialState {
 
   // Only restore state when navigating back from an article page.
   // Logo clicks (referrer = /) and fresh visits (no referrer) show the intro.
-  const fromArticle =
-    document.referrer !== '' &&
-    (() => { try { const u = new URL(document.referrer); return u.origin === window.location.origin && (u.pathname.startsWith('/blog/') || u.pathname.startsWith('/about')); } catch { return false; } })();
 
   if (fromArticle) {
     const saved    = loadState();

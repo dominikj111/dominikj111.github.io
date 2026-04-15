@@ -87,19 +87,22 @@ import Layout from '../layouts/BlogPost.astro';
 		display: inline-flex;
 		align-items: center;
 		gap: 0.4rem;
-		padding: 0.55rem 1.1rem;
+		padding: 0.55rem 1.25rem;
 		border-radius: 8px;
-		border: 1px solid var(--pf-primary);
-		color: var(--pf-primary);
-		font-weight: 600;
+		border: 1.5px solid rgba(0, 0, 0, 0.18);
+		background: #F0D865;
+		color: #1a1a1a;
+		font-weight: 700;
 		font-size: 0.9rem;
 		text-decoration: none;
-		transition: background 0.15s ease, color 0.15s ease;
+		box-shadow: 0 1px 5px rgba(200, 170, 0, 0.25);
+		transition: transform 0.15s ease, box-shadow 0.15s ease;
 	}
 
 	.pf-bmc-link:hover {
-		background: var(--pf-primary);
-		color: #ffffff;
+		transform: translateY(-2px);
+		box-shadow: 0 4px 14px rgba(200, 170, 0, 0.35);
+		color: #1a1a1a;
 	}
 
 	.pf-callout {
