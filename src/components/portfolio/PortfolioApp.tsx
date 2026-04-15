@@ -186,6 +186,7 @@ export default function PortfolioApp() {
   }, []);
 
   const pinnedItems    = CONTENT_ITEMS.filter(i => i.pinned);
+  const streamItems    = CONTENT_ITEMS.filter(i => !i.pinned);
   const focusedItem    = CONTENT_ITEMS.find(i => i.id === focusedId) ?? null;
   const filterSummary  = activeFilters.size > 0
     ? [...activeFilters].map(f => f.charAt(0).toUpperCase() + f.slice(1) + 's').join(' + ')
@@ -257,7 +258,7 @@ export default function PortfolioApp() {
           </div>
 
           <ContentGrid
-            items={CONTENT_ITEMS}
+            items={streamItems}
             activeFilters={activeFilters}
             viewMode={viewMode}
             focusedId={focusedId}
