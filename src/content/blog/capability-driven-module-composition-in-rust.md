@@ -4,7 +4,9 @@ description: "Replace concrete imports with capability contracts and a flat regi
 pubDate: 'Apr 13 2026'
 ---
 
-The coupling problem is old and well-known — import a concrete type, and you've committed to it. DI frameworks solve this, but they bring their own weight: configuration files, container setup, framework lock-in. [JigsawFlow](https://github.com/dominikj111/JigsawFlow) is an architectural pattern that takes a leaner approach: define contracts, resolve implementations through a shared registry, compose explicitly in one place. No framework. No magic.
+<!-- markdownlint-disable MD033 -->
+
+The coupling problem is old and well-known — import a concrete type, and you've committed to it. DI frameworks solve this, but they bring their own weight: configuration files, container setup, framework lock-in. <a href="https://github.com/dominikj111/JigsawFlow" target="_blank" rel="noopener noreferrer">JigsawFlow</a> is an architectural pattern that takes a leaner approach: define contracts, resolve implementations through a shared registry, compose explicitly in one place. No framework. No magic.
 
 The pattern isn't new to engineering. PLC systems in factory automation have operated this way for decades: standardized interfaces, hot-swappable modules, graceful degradation when a signal is missing. Automotive ECUs follow the same discipline through CAN bus protocols. JigsawFlow brings that discipline to general-purpose software — each module is a piece, and the application is whatever shape you assemble them into. The examples below are in Rust, where traits make contracts explicit, but the pattern is language-agnostic and applies wherever you can define an interface and a shared registry.
 
@@ -12,7 +14,7 @@ The pattern isn't new to engineering. PLC systems in factory automation have ope
 
 The pattern inverts the dependency direction: instead of importing concrete types, you define *contracts* (interfaces, or traits in Rust) and resolve implementations through a shared registry at runtime. The registry is the only shared dependency.
 
-Here's what that looks like using [`singleton-registry`](https://github.com/dominikj111/singleton-registry), the Rust reference implementation:
+Here's what that looks like using <a href="https://github.com/dominikj111/singleton-registry" target="_blank" rel="noopener noreferrer"><code>singleton-registry</code></a>, the Rust reference implementation:
 
 ```rust
 use singleton_registry::define_registry;
@@ -108,7 +110,7 @@ Because the registry is the only shared dependency, it also serves as the applic
 
 ## Relation to HMVC
 
-If you've worked with [Hierarchical Model-View-Controller (HMVC)](https://luminova.ng/docs/3.4.0/introduction/hmvc-design), the module idea will feel familiar — self-contained units that can be composed and reused. JigsawFlow takes the same instinct and removes the hierarchy and the MVC constraint. Modules don't form parent-child chains or invoke each other through controllers. They register capabilities and consume capabilities through a flat registry. That flatness removes structural assumptions about what kind of application you're building — the pattern doesn't prescribe a shape, only a wiring mechanism.
+If you've worked with <a href="https://luminova.ng/docs/3.4.0/introduction/hmvc-design" target="_blank" rel="noopener noreferrer">Hierarchical Model-View-Controller (HMVC)</a>, the module idea will feel familiar — self-contained units that can be composed and reused. JigsawFlow takes the same instinct and removes the hierarchy and the MVC constraint. Modules don't form parent-child chains or invoke each other through controllers. They register capabilities and consume capabilities through a flat registry. That flatness removes structural assumptions about what kind of application you're building — the pattern doesn't prescribe a shape, only a wiring mechanism.
 
 ## Where This Points
 
@@ -116,7 +118,7 @@ What made PLCs generalize across the entire manufacturing industry was standardi
 
 The pattern points toward a tooling ecosystem where a CLI works like a package manager for capabilities: declare which contracts your application needs, tooling resolves and wires implementations — standard ones from a shared registry, specialised ones from focused packages, custom ones from your own codebase. Application development becomes directed composition, with the same feel as declaring dependencies in `Cargo.toml`, but at the capability level.
 
-None of this tooling exists yet. [`singleton-registry`](https://github.com/dominikj111/singleton-registry) is the current starting point — a Rust implementation of the registry primitive. The CLI capability manager, inter-capability communication channels, and polyglot contract tooling are open space, waiting to be built on top of the pattern.
+None of this tooling exists yet. <a href="https://github.com/dominikj111/singleton-registry" target="_blank" rel="noopener noreferrer"><code>singleton-registry</code></a> is the current starting point — a Rust implementation of the registry primitive. The CLI capability manager, inter-capability communication channels, and polyglot contract tooling are open space, waiting to be built on top of the pattern.
 
 The trajectory points toward **polyglot composition**: the same contract expressed as a Rust trait, a TypeScript interface, or a Python protocol — with implementations in any language satisfying it interchangeably. A Rust module and a Node.js service become equivalent from the consumer's perspective. That removes language choice from the architectural decision entirely.
 
@@ -130,4 +132,4 @@ Upcoming articles will go deeper on both: polyglot contracts across languages, a
 
 ## References
 
-- **[singleton-registry](https://github.com/dominikj111/singleton-registry)** — the registry crate with runnable examples for basic usage, trait contracts, and singleton replacement
+- **<a href="https://github.com/dominikj111/singleton-registry" target="_blank" rel="noopener noreferrer">singleton-registry</a>** — the registry crate with runnable examples for basic usage, trait contracts, and singleton replacement
