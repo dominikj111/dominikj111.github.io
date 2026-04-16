@@ -116,12 +116,12 @@ export default function FilterSidebar({
 
       <div className="pf-sidebar__support">
         <a
-          href="https://buymeacoffee.com/dominikj111"
-          className="pf-support-btn"
+          href="https://www.buymeacoffee.com/dominikj111"
+          className="pf-support-btn pf-support-btn--coffee pf-support-btn--cookie"
           target="_blank"
           rel="noopener noreferrer"
         >
-          ☕ Support my work
+          ☕ Buy me a coffee
         </a>
       </div>
 

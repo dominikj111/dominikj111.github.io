@@ -1,3 +1,8 @@
+.pf-support-btn.pf-support-btn--cookie {
+  font-family: 'Cookie', cursive, sans-serif !important;
+  font-size: 1.15rem;
+  letter-spacing: 0.01em;
+}
 /*
  * Portfolio SPA — Styles
  * Palette: #1f363d  #40798c  #70a9a1  #9ec1a3  #cfe0c3
@@ -256,6 +261,7 @@ html {
   display: flex;
 }
 
+
 .pf-support-btn {
   display: flex;
   align-items: center;
@@ -272,12 +278,27 @@ html {
   font-family: inherit;
   text-decoration: none;
   box-shadow: 0 1px 4px rgba(200, 170, 0, 0.22);
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  transition: box-shadow 0.18s, border-color 0.18s;
 }
 
-.pf-support-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(200, 170, 0, 0.32);
+/* Modifier for Buy Me a Coffee button: yellow border, yellow shadow on hover, no lift */
+.pf-support-btn--coffee {
+  background: #faf2cb;
+  color: #a67800;
+  border: 2px solid var(--ring);
+  box-shadow: none;
+  font-size: 1.1rem;
+  padding-left: 0.5rem;
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+}
+.pf-support-btn--coffee:hover,
+.pf-support-btn--coffee:focus {
+  box-shadow:
+    0 0 0 0 #44444155,
+    0 0 10px 0 rgb(207, 224, 195);
+  color: #a67800;
+  background: #fffbe7;
 }
 
 /* ── Main Content ──────────────────────────────────────────────────────── */
