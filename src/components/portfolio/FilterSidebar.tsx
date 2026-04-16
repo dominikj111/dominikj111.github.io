@@ -111,7 +111,7 @@ export default function FilterSidebar({
       </div>
 
       <div className="pf-sidebar__nav">
-        <a href="/about" className="pf-nav-link">About</a>
+        <a href="/about" className="pf-nav-link">About me & site</a>
       </div>
 
       <div className="pf-sidebar__support">

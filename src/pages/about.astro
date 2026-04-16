@@ -2,58 +2,57 @@
 import Layout from '../layouts/BlogPost.astro';
 ---
 
+
 <Layout
-	title="About"
-	description="Software designer and architect — from system-level programming to cloud-native applications. Building open source tools that prioritise offline-first operation, deterministic behaviour, and privacy by design."
-	pubDate={new Date('2024-01-01')}
+  title="About me & site"
+  description="About the author and the purpose of this site: a portfolio, blog, and open source hub focused on resilient, offline-first, privacy-respecting software."
+  pubDate={new Date('2024-01-01')}
 >
-	<p>
-		I'm a software designer and architect with 10+ years of experience building scalable platforms,
-		analytics tools, and extensible architectures.
-	</p>
+
 
 	<p>
-		Personally I'm focusing on tools that feel noticeably different from what already exists.
-		I prioritise offline-first operation, deterministic behaviour, and privacy by design —
-		software that works without depending on a network, a vendor, or a black box.
-		My current projects:
+		Welcome! This page is both a personal introduction and an explanation of what this site is for. The main focus here is my work, ongoing effort, and open source contributions—what I build, share, and maintain for the community.
 	</p>
+
+
+	<p>
+		<strong>About me:</strong> I'm a software designer and architect building scalable platforms, analytics tools, and extensible architectures. My primary goal is to create tools and systems that are robust and resilient—something others can learn from or contribute to.
+	</p>
+
+
+
+	<p>
+		<strong>About this site:</strong> This is my portfolio, blog, and project hub. The main purpose is to showcase my open source work and share ideas, code, and resources with others. I focus on software that feels different: offline-first, deterministic, and privacy-respecting. Everything here is open and transparent.
+	</p>
+
 
 	<ul>
 		<li>
 			<strong><a href="https://dominikj111.github.io/engram/" target="_blank" rel="noopener noreferrer">Engram</a></strong> — A deterministic reasoning kernel — symbolic AI, a finite state machine, with configurable boundaries and self-improving weights.
 		</li>
 		<li>
-			<strong><a href="https://github.com/dominikj111/Weaver-Desktop" target="_blank" rel="noopener noreferrer">Weaver Desktop</a></strong> — A lightweight desktop environment for embedded Linux and SBCs. Thin UI client — delegates all system operations to system daemon.
+			<strong><a href="https://github.com/dominikj111/JigsawFlow" target="_blank" rel="noopener noreferrer">JigsawFlow Microkernel</a></strong> — A Capability-Driven Architecture for Offline-First, Hot-Swappable, Language-Agnostic Applications.
 		</li>
 		<li>
-			<strong><a href="https://github.com/dominikj111/JigsawFlow" target="_blank" rel="noopener noreferrer">JigsawFlow Microkernel</a></strong> — A Capability-Driven Architecture for Offline-First, Hot-Swappable, Language-Agnostic Applications.
+			<strong><a href="https://github.com/dominikj111/Weaver-Desktop" target="_blank" rel="noopener noreferrer">Weaver Desktop</a></strong> — A lightweight desktop environment for embedded Linux and SBCs. Thin UI client — delegates all system operations to system daemon.
 		</li>
 	</ul>
 
 	<p>
 		My interests pull in a few directions that end up reinforcing each other: programming techniques,
 		artificial intelligence, neural networks, robotics, evolutionary patterns, parallel computing, and cognitive science.
-		What ties them together is a curiosity about systems that adapt, reason, and operate independently —
+		What ties them together is a curiosity about systems that adapt, reason, and operate independently and deterministically —
 		which is exactly what draws me to the projects above.
 	</p>
 
 	<p>
-		Mathematics is a constant thread through all of it. I'm drawn to the areas that deal in precision and
-		structure — graph theory, automata theory, computability theory, and probability theory with combinatorics.
-		There's something satisfying about a result that is exactly right, not approximately right.
-		I have little patience for numerical solutions to problems that have an analytic answer —
-		approximation belongs in simulations and exploratory research, not in a final result where
-		the real answer exists and is waiting to be found.
-		The similar instinct shows up in hardware: tinkering with Arduino and Raspberry Pi is where
-		theory meets physical constraint, and where the gap between the best solution and a
-		good-enough one becomes impossible to ignore.
+		Mathematics is a constant thread through my work. I’m especially drawn to areas like graph theory, automata, computability, and probability—fields where precision and structure matter. I prefer analytic solutions over approximations, and I enjoy the challenge of bridging theory and practice, whether in code or hardware.
 	</p>
 
 	<div class="pf-callout">
 		<p>
-			Almost everything I know I learned from <strong>open sources</strong> — documentation, libraries, articles, projects
-			people shared freely. A few books aside, I never paid for that knowledge.
+			Almost everything I know I learned from <strong>open sources</strong> — documentation, libraries, articles, and projects
+			people shared freely. I never paid for that knowledge (except few books aside).
 			<strong>Open source</strong> wasn't just a convenience; it was the entire foundation.
 			I've seen it work, consistently, across decades — and that's why giving back the same way feels
 			less like a choice and more like the obvious thing to do.
@@ -64,9 +63,6 @@ import Layout from '../layouts/BlogPost.astro';
 			cloud-dependent, always-online, vendor-locked — runs counter to how I think tools should work.
 			Resilience and offline-first design aren't constraints; they're a statement about who the software
 			serves.
-			Rust crates on <a href="https://crates.io/users/dominikj111" target="_blank" rel="noopener noreferrer me">crates.io</a>,
-			utilities on <a href="https://www.npmjs.com/~domino2" target="_blank" rel="noopener noreferrer me">npm</a>,
-			and everything else on <a href="https://github.com/dominikj111" target="_blank" rel="noopener noreferrer me">GitHub</a>.
 		</p>
 	</div>
 </Layout>
