@@ -3,6 +3,7 @@ title: 'Engram: A Deterministic Operations Layer for LLM Agent Workflows'
 description: 'A design proposal for Engram — a deterministic graph-based runtime that sits in front of LLMs, resolving recurring queries from confidence-weighted paths and serving as an agent mesh, tool gateway, and persistent memory layer.'
 pubDate: 'Apr 13 2026'
 updatedDate: 'Apr 13 2026'
+heroImage: ../../assets/engram.png
 ---
 
 Large language models are remarkable. They are also expensive per query, non-deterministic at runtime, and difficult to audit step by step. For many production workflows, that trade-off is unnecessary.
