@@ -8,7 +8,7 @@ pubDate: 'Apr 13 2026'
 
 The coupling problem is old and well-known — import a concrete type, and you've committed to it. DI frameworks solve this, but they bring their own weight: configuration files, container setup, framework lock-in. <a href="https://github.com/dominikj111/JigsawFlow" target="_blank" rel="noopener noreferrer">JigsawFlow</a> is an architectural pattern that takes a leaner approach: define contracts, resolve implementations through a shared registry, compose explicitly in one place. No framework. No magic.
 
-The pattern isn't new to engineering. PLC systems in factory automation have operated this way for decades: standardized interfaces, hot-swappable modules, graceful degradation when a signal is missing. Automotive ECUs follow the same discipline through CAN bus protocols. JigsawFlow brings that discipline to general-purpose software — each module is a piece, and the application is whatever shape you assemble them into. The examples below are in Rust, where traits make contracts explicit, but the pattern is language-agnostic and applies wherever you can define an interface and a shared registry.
+The pattern isn't new to engineering. PLC systems in factory automation have operated this way for decades: standardized interfaces, hot-swappable modules, graceful degradation when a signal is missing. Automotive ECUs follow the same discipline through CAN bus protocols. JigsawFlow brings that discipline to general-purpose software — each module is a piece, and the application is whatever shape you assemble them into. The examples below are in Rust, where traits make contracts explicit, but the pattern is language-agnostic and applies wherever you can define an interface and a shared registry. Runnable versions of every snippet live at <a href="https://github.com/dominikj111/JigsawFlow/tree/main/examples/rust" target="_blank" rel="noopener noreferrer"><code>JigsawFlow/examples/rust</code></a>.
 
 ## The Idea: Capabilities Instead of Imports
 
@@ -43,6 +43,8 @@ fn main() {
 
 `generate_report` doesn't import `PlainFormatter`. It asks the registry: "is there anything satisfying `Formatter`?" If yes, use it. If no, warn and continue. That last part — **graceful degradation** — is enabled by the pattern. The `Err` arm is explicit at the call site, not hidden inside a framework. Missing capabilities don't silently crash; they're handled where the code that needs them lives.
 
+This is the service locator pattern in the sense <a href="https://martinfowler.com/articles/injection.html#UsingAServiceLocator" target="_blank" rel="noopener noreferrer">Martin Fowler described it</a>. Fowler's trade-off is real: dependencies aren't visible from a function's signature — you have to read the body to find what it looks up. JigsawFlow accepts this deliberately; it's what makes graceful degradation possible. A component that fails at construction time if a dependency is absent can't degrade — it can only crash.
+
 ## Runtime Swappability
 
 Because capabilities are resolved at call time, you can replace them mid-execution:
@@ -63,7 +65,7 @@ This is useful for configuration-driven behavior (pick an implementation based o
 
 This is where I think the pattern has its biggest practical payoff.
 
-Because business logic functions consume the registry, not concrete imports, tests simply register a test implementation directly — no `#[mockall::automock]`, no test double scaffolding. Implement the trait with test-specific behavior, register it, done:
+Because business logic functions consume the registry, not concrete imports, tests simply register a test implementation directly — no `#[mockall::automock]`, no test double scaffolding. The full example extends `generate_report` to write through a `Sink` contract rather than directly to stdout — that's the boundary `CapturingSink` satisfies:
 
 ```rust
 struct CapturingSink(Mutex<Vec<String>>);
@@ -132,4 +134,7 @@ Upcoming articles will go deeper on both: polyglot contracts across languages, a
 
 ## References
 
+- **<a href="https://github.com/dominikj111/JigsawFlow" target="_blank" rel="noopener noreferrer">JigsawFlow</a>** — the pattern specification, architecture docs, and multi-language examples
+- **<a href="https://github.com/dominikj111/JigsawFlow/tree/main/examples/rust" target="_blank" rel="noopener noreferrer">JigsawFlow/examples/rust</a>** — runnable code for all three scenarios in this article: capability contract, runtime swap, and testing without mocks
 - **<a href="https://github.com/dominikj111/singleton-registry" target="_blank" rel="noopener noreferrer">singleton-registry</a>** — the registry crate with runnable examples for basic usage, trait contracts, and singleton replacement
+- **<a href="https://martinfowler.com/articles/injection.html#UsingAServiceLocator" target="_blank" rel="noopener noreferrer">Fowler, 2004 — Inversion of Control Containers and the Dependency Injection Pattern</a>** — the service locator trade-off this pattern knowingly accepts
