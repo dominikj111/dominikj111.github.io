@@ -1,6 +1,6 @@
 ---
 title: "From Factory Floor to Codebase: Application Composition with JigsawFlow"
-description: "Replace concrete imports with capability contracts and a flat registry — no DI framework, no configuration files. The result: isolated module testing without mocking scaffolding, practical hot-swapping, and a foundation for polyglot composition across languages."
+description: "Replace direct concrete coupling with capability contracts and a flat registry — no DI framework, no configuration files. The result: isolated module testing without mocking scaffolding, practical hot-swapping, and a foundation for polyglot composition across languages."
 pubDate: 'Apr 13 2026'
 ---
 
@@ -10,9 +10,9 @@ The coupling problem is old and well-known — import a concrete type, and you'v
 
 The pattern isn't new to engineering. PLC systems in factory automation have operated this way for decades: standardized interfaces, hot-swappable modules, graceful degradation when a signal is missing. Automotive ECUs follow the same discipline through CAN bus protocols. JigsawFlow brings that discipline to general-purpose software — each module is a piece, and the application is whatever shape you assemble them into. The examples below are in Rust, where traits make contracts explicit, but the pattern is language-agnostic and applies wherever you can define an interface and a shared registry. Runnable versions of every snippet live at <a href="https://github.com/dominikj111/JigsawFlow/tree/main/examples/rust" target="_blank" rel="noopener noreferrer"><code>JigsawFlow/examples/rust</code></a>.
 
-## The Idea: Capabilities Instead of Imports
+## The Idea: Capabilities Over Direct Coupling
 
-The pattern inverts the dependency direction: instead of importing concrete types, you define *contracts* (interfaces, or traits in Rust) and resolve implementations through a shared registry at runtime. The registry is the only shared dependency.
+The pattern inverts the dependency direction: instead of depending directly on concrete types, you define *contracts* (interfaces, or traits in Rust) and resolve implementations through a shared registry at runtime. You still import contracts — the abstractions — but never the concrete implementation. The registry is the only shared dependency.
 
 Here's what that looks like using <a href="https://github.com/dominikj111/singleton-registry" target="_blank" rel="noopener noreferrer"><code>singleton-registry</code></a>, the Rust reference implementation:
 
@@ -65,7 +65,7 @@ This is useful for configuration-driven behavior (pick an implementation based o
 
 This is where I think the pattern has its biggest practical payoff.
 
-Because business logic functions consume the registry, not concrete imports, tests simply register a test implementation directly — no `#[mockall::automock]`, no test double scaffolding. The full example extends `generate_report` to write through a `Sink` contract rather than directly to stdout — that's the boundary `CapturingSink` satisfies:
+Because business logic functions consume the registry, not concrete implementations, tests simply register a test implementation directly — no `#[mockall::automock]`, no test double scaffolding. The full example extends `generate_report` to write through a `Sink` contract rather than directly to stdout — that's the boundary `CapturingSink` satisfies:
 
 ```rust
 struct CapturingSink(Mutex<Vec<String>>);
@@ -104,15 +104,9 @@ Because the registry is the only shared dependency, test setup is just registeri
 
 In operating systems, a microkernel keeps the core as small as possible — it manages only what everything else depends on, and pushes everything else (drivers, servers, filesystems) into isolated modules outside the kernel.
 
-JigsawFlow applies the same principle at the application level. The registry *is* the kernel: tiny, single-purpose, managing only capability lookup. It knows nothing about your business logic. Everything else lives in modules around it — isolated, replaceable, independently testable.
+JigsawFlow applies the same principle at two levels. The registry is the minimal shared primitive: tiny, single-purpose, managing only in-process capability lookup. It knows nothing about your business logic. Everything else lives in modules around it — isolated, replaceable, independently testable.
 
-The application entry point does only one thing: wiring. It picks which implementations go into the registry and starts execution. Business logic lives entirely in the modules. What emerges from the registered capabilities *is* the application.
-
-Because the registry is the only shared dependency, it also serves as the application's single source of state. What's registered at any point in time defines what the application can do — and in tests, that means spinning up exactly the context a module needs without touching anything else.
-
-## Relation to HMVC
-
-If you've worked with <a href="https://luminova.ng/docs/3.4.0/introduction/hmvc-design" target="_blank" rel="noopener noreferrer">Hierarchical Model-View-Controller (HMVC)</a>, the module idea will feel familiar — self-contained units that can be composed and reused. JigsawFlow takes the same instinct and removes the hierarchy and the MVC constraint. Modules don't form parent-child chains or invoke each other through controllers. They register capabilities and consume capabilities through a flat registry. That flatness removes structural assumptions about what kind of application you're building — the pattern doesn't prescribe a shape, only a wiring mechanism.
+The JigsawFlow Microkernel is the runtime built on that primitive. It extends capability resolution beyond the local process — adding a daemon, a CLI, and a resolution chain that reaches across local registries, LAN channels, and a global registry — while keeping the same discipline: the Microkernel itself manages nothing about your domain. It manages only where capabilities are found.
 
 ## Where This Points
 
@@ -120,13 +114,13 @@ What made PLCs generalize across the entire manufacturing industry was standardi
 
 The pattern points toward a tooling ecosystem where a CLI works like a package manager for capabilities: declare which contracts your application needs, tooling resolves and wires implementations — standard ones from a shared registry, specialised ones from focused packages, custom ones from your own codebase. Application development becomes directed composition, with the same feel as declaring dependencies in `Cargo.toml`, but at the capability level.
 
-None of this tooling exists yet. <a href="https://github.com/dominikj111/singleton-registry" target="_blank" rel="noopener noreferrer"><code>singleton-registry</code></a> is the current starting point — a Rust implementation of the registry primitive. The CLI capability manager, inter-capability communication channels, and polyglot contract tooling are open space, waiting to be built on top of the pattern.
+None of this tooling exists yet. <a href="https://github.com/dominikj111/singleton-registry" target="_blank" rel="noopener noreferrer"><code>singleton-registry</code></a> is the current starting point — a Rust reference implementation of the registry primitive, with a TypeScript port actively in development. The CLI capability manager, inter-capability communication channels, and polyglot contract tooling are open space, waiting to be built on top of the pattern.
 
 The trajectory points toward **polyglot composition**: the same contract expressed as a Rust trait, a TypeScript interface, or a Python protocol — with implementations in any language satisfying it interchangeably. A Rust module and a Node.js service become equivalent from the consumer's perspective. That removes language choice from the architectural decision entirely.
 
-This is also where JigsawFlow intersects with the current conversation around AI-generated software (Jen-Hsun Huang). The prevailing idea is that AI turns everyone into a programmer: describe what you want in plain language, and AI renders the application. It's a compelling pitch. But freeform generation — without a shared vocabulary of contracts to assemble from — produces output that's hard to audit, compose with, or build on at scale. Every artifact is bespoke; there's no stable structure to reason about.
+This is also where JigsawFlow intersects with the current conversation around AI-generated software — from Jen-Hsun Huang's vision of AI turning everyone into a programmer to the emerging practice of *vibecoding*, where developers direct AI to write entire features from natural language and take an oversight role rather than sitting at the keyboard. The pitch is compelling, but the problem is structural: freeform generation without a shared vocabulary of contracts produces output that is opaque and bespoke — every artifact is one-off, boundaries are implicit, and reviewing what the AI produced means reading the whole thing rather than checking it against a known interface. There is no stable structure to build on.
 
-JigsawFlow suggests a different relationship between AI and software. When contracts are well-defined and there's a shared vocabulary of capabilities, AI becomes a reliable assembler rather than an improvising generator — it selects the right contracts for a requirement, generates only the custom business logic that's unique to the problem, and composes. The output is something you can read, test, and reason about. Developers move up from writing boilerplate to designing contracts and domain logic — the parts that give an application its actual meaning. That seems like the more durable path.
+JigsawFlow reframes this at two levels. At the application design level, AI becomes a reliable compositor: given a requirement, it navigates a defined contract catalog, selects which capabilities the feature needs, and generates only the business logic that wires them — output that is reviewable at a known boundary, not line by line. At the implementation level, developers still write contract implementations, with AI as assistant; the contract is the specification the AI works against, and the tests that verify compliance are the acceptance criteria. What gets committed is "an implementation of the Logger contract for Datadog" rather than "code that seems to work." That distinction — structured composition over freeform generation — makes AI contributions auditable, composable, and maintainable over time. Developers move up from writing boilerplate to designing contracts and domain logic: the parts that give an application its actual meaning.
 
 Upcoming articles will go deeper on both: polyglot contracts across languages, and *GUI as a Contract*.
 
