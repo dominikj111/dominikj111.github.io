@@ -45,6 +45,8 @@ fn main() {
 
 This is the service locator pattern in the sense <a href="https://martinfowler.com/articles/injection.html#UsingAServiceLocator" target="_blank" rel="noopener noreferrer">Martin Fowler described it</a>. Fowler's trade-off is real: dependencies aren't visible from a function's signature — you have to read the body to find what it looks up. JigsawFlow accepts this deliberately; it's what makes graceful degradation possible. A component that fails at construction time if a dependency is absent can't degrade — it can only crash.
 
+DI frameworks offer the same concern separation — the quality of that trade-off is equivalent. The difference shows up in context. DI delivers the most value in scripting languages and dynamic service-lookup systems, where dependencies can be bound late and the container can provide genuinely any implementation at runtime. In compiled languages, every concrete type already exists in the binary; the container's contribution shifts from enabling runtime flexibility to organizing construction. The coupling is inherent to the compilation model regardless of whether a container manages it. JigsawFlow's position in that context: make the composition explicit, keep the registry as the only shared dependency, and let the seam speak for itself.
+
 ## Runtime Swappability
 
 Because capabilities are resolved at call time, you can replace them mid-execution:
@@ -59,7 +61,11 @@ generate_report("Q2", "Projections look strong.");
 
 First report comes out as plain text, second as Markdown. `generate_report` never changed. In singleton-registry's implementation, the swap is concurrency-safe: any caller that already retrieved the old `Arc` keeps a reference to the previous allocation. New lookups get the replacement. No race condition, no null reference.
 
-This is useful for configuration-driven behavior (pick an implementation based on a flag or env variable) or switching between compiled-in strategies at runtime. It's worth being precise here: because Rust is compiled, all implementations still need to be in the binary — this is within-process swapping, not dynamic module loading. True zero-downtime hot-swapping — loading a new compiled module without restarting the process — requires dynamic library loading. The registry abstraction is already shaped to accommodate it: consumers ask for a contract, not a specific binary, so the source of the implementation can change underneath without touching the pattern.
+At its core, this is the **Strategy pattern**: `Formatter` is the strategy interface, `PlainFormatter` and `MarkdownFormatter` are concrete strategies, and `register()` is how you swap the active one. The registry is the rendezvous point where neither side needs to know the other exists.
+
+Swappability composes with several other patterns naturally. Register a **Decorator** — the classic composition-by-wrapping pattern — and you layer cross-cutting behavior onto a capability without touching consumer code: a logging wrapper records every call, a caching wrapper memoizes expensive results, a retry wrapper re-attempts on failure. The registry is what makes this seamless: you register the composed version in place of the bare implementation, and consumers see only the contract. Register a **Null Object** when nothing real is available and the application degrades gracefully, with no change to the consumers that depend on it.
+
+It's worth being precise about what "runtime" means here: because Rust is compiled, all implementations still need to be in the binary — this is within-process swapping, not dynamic module loading. Consumers ask for a contract, not a specific type, so the swap is transparent to them regardless of which concrete implementation is active.
 
 ## Cheap Testing — and Better Tests
 
@@ -99,6 +105,25 @@ Each module only communicates through the registry, so you test it without impor
 It also reaches boundaries that mocking libraries can't. Standard library utilities, for example, can't be decorated with `#[mockall::automock]` — but any boundary can be wrapped in a contract and satisfied by a lightweight test implementation registered directly.
 
 Because the registry is the only shared dependency, test setup is just registering what the module under test needs — no constructor injection, no parameter threading, no shared mutable state passed around.
+
+## Compared to the Alternatives
+
+The same coupling problem has established solutions. The differences that matter most in practice: whether a missing capability crashes the application or degrades gracefully, whether implementations can change after startup, and how much framework machinery is required.
+
+✅ by design · ⚠️ achievable with extra effort · ⬜️ not applicable
+
+| | Concern separation | Graceful degradation | Zero framework | Test setup |
+| --- | :---: | :---: | :---: | :--- |
+| Direct coupling | ⬜️ | ⚠️ | ✅ | No contract boundary to inject through |
+| DI framework | ✅ | ⚠️ | ⬜️ | Mock framework or test container |
+| Manual DI (constructor params) | ✅ | ⚠️ | ✅ | Pass test instance; param threading |
+| Abstract Factory | ✅ | ⚠️ | ✅ | Provide test factory implementation |
+| Plugin system (OSGi, etc.) | ✅ | ✅ | ⬜️ | Framework-specific test harness |
+| **`singleton-registry`** | ✅ | ✅ | ✅ | **`register()` only** |
+
+Graceful degradation is achievable in all approaches — a DI container can inject an optional dependency, an Abstract Factory can return a Null Object — but in `singleton-registry` the `Err` arm of `get_cloned()` is the default path, not an opt-in.
+
+DI frameworks are the closest competitor, well-established across ecosystems and matching `singleton-registry` on concern separation. Plugin systems match on graceful degradation but require a runtime host and framework adoption. `singleton-registry` reaches the same profile with a single crate and no lifecycle machinery.
 
 ## Why "Microkernel"?
 
