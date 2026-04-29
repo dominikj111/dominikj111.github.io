@@ -61,6 +61,8 @@ generate_report("Q2", "Projections look strong.");
 
 First report comes out as plain text, second as Markdown. `generate_report` never changed. In singleton-registry's implementation, the swap is concurrency-safe: any caller that already retrieved the old `Arc` keeps a reference to the previous allocation. New lookups get the replacement. No race condition, no null reference.
 
+In practice this covers scenarios like switching output format based on a feature flag, promoting a live integration to replace a stub once credentials are available at startup, or swapping a real implementation for a lightweight one during a degraded-mode fallback — all without touching the business logic that uses the capability.
+
 At its core, this is the **Strategy pattern**: `Formatter` is the strategy interface, `PlainFormatter` and `MarkdownFormatter` are concrete strategies, and `register()` is how you swap the active one. The registry is the rendezvous point where neither side needs to know the other exists.
 
 Swappability composes with several other patterns naturally. Register a **Decorator** — the classic composition-by-wrapping pattern — and you layer cross-cutting behavior onto a capability without touching consumer code: a logging wrapper records every call, a caching wrapper memoizes expensive results, a retry wrapper re-attempts on failure. The registry is what makes this seamless: you register the composed version in place of the bare implementation, and consumers see only the contract. Register a **Null Object** when nothing real is available and the application degrades gracefully, with no change to the consumers that depend on it.
@@ -71,7 +73,7 @@ It's worth being precise about what "runtime" means here: because Rust is compil
 
 This is where I think the pattern has its biggest practical payoff.
 
-Because business logic functions consume the registry, not concrete implementations, tests simply register a test implementation directly — no `#[mockall::automock]`, no test double scaffolding. The full example extends `generate_report` to write through a `Sink` contract rather than directly to stdout — that's the boundary `CapturingSink` satisfies:
+Because business logic functions consume the registry, not concrete implementations, tests simply register a test implementation directly — no `#[mockall::automock]`, no test double scaffolding. `define_registry!(test_app)` in the test module creates a completely independent global registry — its own static, separate from the production `app` registry — so test registrations are fully isolated and never affect each other or production code. The full example extends `generate_report` to write through a `Sink` contract rather than directly to stdout — that's the boundary `CapturingSink` satisfies:
 
 ```rust
 struct CapturingSink(Mutex<Vec<String>>);
