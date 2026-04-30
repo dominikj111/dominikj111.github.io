@@ -43,10 +43,6 @@ fn main() {
 
 `generate_report` doesn't import `PlainFormatter`. It asks the registry: "is there anything satisfying `Formatter`?" If yes, use it. If no, warn and continue. That last part — **graceful degradation** — is enabled by the pattern. The `Err` arm is explicit at the call site, not hidden inside a framework. Missing capabilities don't silently crash; they're handled where the code that needs them lives.
 
-This is the service locator pattern in the sense <a href="https://martinfowler.com/articles/injection.html#UsingAServiceLocator" target="_blank" rel="noopener noreferrer">Martin Fowler described it</a>. Fowler's trade-off is real: dependencies aren't visible from a function's signature — you have to read the body to find what it looks up. JigsawFlow accepts this deliberately; it's what makes graceful degradation possible. A component that fails at construction time if a dependency is absent can't degrade — it can only crash.
-
-DI frameworks offer the same concern separation — the quality of that trade-off is equivalent. The difference shows up in context. DI delivers the most value in scripting languages and dynamic service-lookup systems, where dependencies can be bound late and the container can provide genuinely any implementation at runtime. In compiled languages, every concrete type already exists in the binary; the container's contribution shifts from enabling runtime flexibility to organizing construction. The coupling is inherent to the compilation model regardless of whether a container manages it. JigsawFlow's position in that context: make the composition explicit, keep the registry as the only shared dependency, and let the seam speak for itself.
-
 ## Runtime Swappability
 
 Because capabilities are resolved at call time, you can replace them mid-execution:
@@ -110,6 +106,8 @@ Because the registry is the only shared dependency, test setup is just registeri
 
 ## Compared to the Alternatives
 
+This is the service locator pattern in the sense <a href="https://martinfowler.com/articles/injection.html#UsingAServiceLocator" target="_blank" rel="noopener noreferrer">Martin Fowler described it</a>. Fowler's trade-off is real: dependencies aren't visible from a function's signature — you have to read the body to find what it looks up. `singleton-registry` accepts this deliberately; it's what makes graceful degradation possible. A component that fails at construction time if a dependency is absent can't degrade — it can only crash.
+
 The same coupling problem has established solutions. The differences that matter most in practice: whether a missing capability crashes the application or degrades gracefully, whether implementations can change after startup, and how much framework machinery is required.
 
 ✅ by design · ⚠️ achievable with extra effort · ⬜️ not applicable
@@ -125,7 +123,7 @@ The same coupling problem has established solutions. The differences that matter
 
 Graceful degradation is achievable in all approaches — a DI container can inject an optional dependency, an Abstract Factory can return a Null Object — but in `singleton-registry` the `Err` arm of `get_cloned()` is the default path, not an opt-in.
 
-DI frameworks are the closest competitor, well-established across ecosystems and matching `singleton-registry` on concern separation. Plugin systems match on graceful degradation but require a runtime host and framework adoption. `singleton-registry` reaches the same profile with a single crate and no lifecycle machinery.
+DI frameworks are the closest competitor, well-established across ecosystems and matching `singleton-registry` on concern separation. The difference shows up in context: DI delivers the most value in scripting languages and dynamic service-lookup systems, where dependencies can be bound late and the container can provide genuinely any implementation at runtime. In compiled languages, every concrete type already exists in the binary; the container's contribution shifts from enabling runtime flexibility to organizing construction. The coupling is inherent to the compilation model regardless of whether a container manages it. Plugin systems match on graceful degradation but require a runtime host and framework adoption. `singleton-registry`'s position: make the composition explicit, keep the registry as the only shared dependency, and let the seam speak for itself — no lifecycle machinery required.
 
 ## Why "Microkernel"?
 
