@@ -1,6 +1,6 @@
 ---
 title: "From Factory Floor to Codebase: Application Composition with JigsawFlow"
-description: "Replace direct concrete coupling with capability contracts and a flat registry — no DI framework, no configuration files. The result: isolated module testing without mocking scaffolding, practical hot-swapping, and a foundation for polyglot composition across languages."
+description: "Replace direct concrete coupling with capability contracts and a flat registry — no DI framework, no configuration files. The result: isolated module testing without mocking scaffolding, practical hot-swapping, and graceful degradation by default."
 pubDate: 'Apr 13 2026'
 ---
 
@@ -14,7 +14,7 @@ The pattern isn't new to engineering. PLC systems in factory automation have ope
 
 The pattern inverts the dependency direction: instead of depending directly on concrete types, you define *contracts* (interfaces, or traits in Rust) and resolve implementations through a shared registry at runtime. You still import contracts — the abstractions — but never the concrete implementation. The registry is the only shared dependency.
 
-Here's what that looks like using <a href="https://github.com/dominikj111/singleton-registry" target="_blank" rel="noopener noreferrer"><code>singleton-registry</code></a>, the Rust reference implementation:
+Here's what that looks like using <a href="https://github.com/dominikj111/singleton-registry" target="_blank" rel="noopener noreferrer"><code>singleton-registry</code></a>, the pattern's core mechanism:
 
 ```rust
 use singleton_registry::define_registry;
@@ -55,7 +55,7 @@ app::register(Arc::new(MarkdownFormatter) as Arc<dyn Formatter>);
 generate_report("Q2", "Projections look strong.");
 ```
 
-First report comes out as plain text, second as Markdown. `generate_report` never changed. In singleton-registry's implementation, the swap is concurrency-safe: any caller that already retrieved the old `Arc` keeps a reference to the previous allocation. New lookups get the replacement. No race condition, no null reference.
+First report comes out as plain text, second as Markdown. `generate_report` never changed. In `singleton-registry`'s implementation, the swap is concurrency-safe: any caller that already retrieved the old `Arc` keeps a reference to the previous allocation. New lookups get the replacement. No race condition, no null reference.
 
 In practice this covers scenarios like switching output format based on a feature flag, promoting a live integration to replace a stub once credentials are available at startup, or swapping a real implementation for a lightweight one during a degraded-mode fallback — all without touching the business logic that uses the capability.
 
@@ -69,7 +69,7 @@ It's worth being precise about what "runtime" means here: because Rust is compil
 
 This is where I think the pattern has its biggest practical payoff.
 
-Because business logic functions consume the registry, not concrete implementations, tests simply register a test implementation directly — no `#[mockall::automock]`, no test double scaffolding. `define_registry!(test_app)` in the test module creates a completely independent global registry — its own static, separate from the production `app` registry — so test registrations are fully isolated and never affect each other or production code. The full example extends `generate_report` to write through a `Sink` contract rather than directly to stdout — that's the boundary `CapturingSink` satisfies:
+Because business logic functions consume the registry, not concrete implementations, tests simply register a test implementation directly — no `#[mockall::automock]`, no test double scaffolding. `define_registry!(test_app)` in the test module creates a completely independent global registry — its own static, separate from the production `app` registry. Test registrations are fully isolated and never affect each other or production code. The full example extends `generate_report` to write through a `Sink` contract rather than directly to stdout — that's the boundary `CapturingSink` satisfies:
 
 ```rust
 struct CapturingSink(Mutex<Vec<String>>);
@@ -108,7 +108,7 @@ Because the registry is the only shared dependency, test setup is just registeri
 
 This is the service locator pattern in the sense <a href="https://martinfowler.com/articles/injection.html#UsingAServiceLocator" target="_blank" rel="noopener noreferrer">Martin Fowler described it</a>. Fowler's trade-off is real: dependencies aren't visible from a function's signature — you have to read the body to find what it looks up. `singleton-registry` accepts this deliberately; it's what makes graceful degradation possible. A component that fails at construction time if a dependency is absent can't degrade — it can only crash.
 
-The same coupling problem has established solutions. The differences that matter most in practice: whether a missing capability crashes the application or degrades gracefully, whether implementations can change after startup, and how much framework machinery is required.
+Against that backdrop, the same coupling problem has established solutions. The differences that matter most in practice: whether a missing capability crashes the application or degrades gracefully, whether implementations can change after startup, and how much framework machinery is required.
 
 ✅ by design · ⚠️ achievable with extra effort · ⬜️ not applicable
 
@@ -123,7 +123,9 @@ The same coupling problem has established solutions. The differences that matter
 
 Graceful degradation is achievable in all approaches — a DI container can inject an optional dependency, an Abstract Factory can return a Null Object — but in `singleton-registry` the `Err` arm of `get_cloned()` is the default path, not an opt-in.
 
-DI frameworks are the closest competitor, well-established across ecosystems and matching `singleton-registry` on concern separation. The difference shows up in context: DI delivers the most value in scripting languages and dynamic service-lookup systems, where dependencies can be bound late and the container can provide genuinely any implementation at runtime. In compiled languages, every concrete type already exists in the binary; the container's contribution shifts from enabling runtime flexibility to organizing construction. The coupling is inherent to the compilation model regardless of whether a container manages it. Plugin systems match on graceful degradation but require a runtime host and framework adoption. `singleton-registry`'s position: make the composition explicit, keep the registry as the only shared dependency, and let the seam speak for itself — no lifecycle machinery required.
+DI frameworks are the closest competitor, well-established across ecosystems and matching `singleton-registry` on concern separation. The difference shows up in context: DI delivers the most value in scripting languages and dynamic service-lookup systems, where dependencies can be bound late and the container can provide genuinely any implementation at runtime. In compiled languages, every concrete type already exists in the binary; the container's contribution shifts from enabling runtime flexibility to organizing construction. The coupling is inherent to the compilation model regardless of whether a container manages it.
+
+Plugin systems match on graceful degradation but require a runtime host and framework adoption. `singleton-registry`'s position: make the composition explicit, keep the registry as the only shared dependency, and let the seam speak for itself — no lifecycle machinery required.
 
 ## Why "Microkernel"?
 
@@ -131,19 +133,19 @@ In operating systems, a microkernel keeps the core as small as possible — it m
 
 JigsawFlow applies the same principle at two levels. The registry is the minimal shared primitive: tiny, single-purpose, managing only in-process capability lookup. It knows nothing about your business logic. Everything else lives in modules around it — isolated, replaceable, independently testable.
 
-The JigsawFlow Microkernel is the runtime built on that primitive. It extends capability resolution beyond the local process — adding a daemon, a CLI, and a resolution chain that reaches across local registries, LAN channels, and a global registry — while keeping the same discipline: the Microkernel itself manages nothing about your domain. It manages only where capabilities are found.
+The JigsawFlow Microkernel is the planned runtime that builds on that primitive. Where `singleton-registry` handles in-process capability lookup, the Microkernel extends that resolution across process boundaries — a daemon, a CLI, and a resolution chain that reaches across local registries, LAN channels, and a global registry — while keeping the same discipline: it manages nothing about your domain, only where capabilities are found. That work is ahead; `singleton-registry` is the first step.
 
 ## Where This Points
 
 What made PLCs generalize across the entire manufacturing industry was standardized interfaces. Once standard signal contracts existed, you could combine components from different vendors with confidence. The same leverage is available here — if the community converges on a set of standard contracts (`Logger`, `Storage`, `HttpClient`, `AuthProvider`, and so on), any module implementing those contracts becomes immediately composable across projects and teams without integration work.
 
-The pattern points toward a tooling ecosystem where a CLI works like a package manager for capabilities: declare which contracts your application needs, tooling resolves and wires implementations — standard ones from a shared registry, specialised ones from focused packages, custom ones from your own codebase. Application development becomes directed composition, with the same feel as declaring dependencies in `Cargo.toml`, but at the capability level.
+The pattern points toward a tooling ecosystem where a CLI works like a package manager for capabilities: declare which contracts your application needs, tooling resolves and wires implementations — standard ones from a shared registry, specialized ones from focused packages, custom ones from your own codebase. Application development becomes directed composition, with the same feel as declaring dependencies in `Cargo.toml`, but at the capability level.
 
 None of this tooling exists yet. <a href="https://github.com/dominikj111/singleton-registry" target="_blank" rel="noopener noreferrer"><code>singleton-registry</code></a> is the current starting point — a Rust reference implementation of the registry primitive, with a TypeScript port actively in development. The CLI capability manager, inter-capability communication channels, and polyglot contract tooling are open space, waiting to be built on top of the pattern.
 
 The trajectory points toward **polyglot composition**: the same contract expressed as a Rust trait, a TypeScript interface, or a Python protocol — with implementations in any language satisfying it interchangeably. A Rust module and a Node.js service become equivalent from the consumer's perspective. That removes language choice from the architectural decision entirely.
 
-This is also where JigsawFlow intersects with the current conversation around AI-generated software — from Jen-Hsun Huang's vision of AI turning everyone into a programmer to the emerging practice of *vibecoding*, where developers direct AI to write entire features from natural language and take an oversight role rather than sitting at the keyboard. The pitch is compelling, but the problem is structural: freeform generation without a shared vocabulary of contracts produces output that is opaque and bespoke — every artifact is one-off, boundaries are implicit, and reviewing what the AI produced means reading the whole thing rather than checking it against a known interface. There is no stable structure to build on.
+Explicit contracts also turn out to be the property that makes AI-generated software tractable. The emerging practice of *vibecoding* — where developers direct AI to write entire features from natural language and take an oversight role rather than sitting at the keyboard — is compelling, but the problem is structural: freeform generation without a shared vocabulary of contracts produces output that is opaque and bespoke — every artifact is one-off, boundaries are implicit, and reviewing what the AI produced means reading the whole thing rather than checking it against a known interface. There is no stable structure to build on.
 
 JigsawFlow reframes this at two levels. At the application design level, AI becomes a reliable compositor: given a requirement, it navigates a defined contract catalog, selects which capabilities the feature needs, and generates only the business logic that wires them — output that is reviewable at a known boundary, not line by line. At the implementation level, developers still write contract implementations, with AI as assistant; the contract is the specification the AI works against, and the tests that verify compliance are the acceptance criteria. What gets committed is "an implementation of the Logger contract for Datadog" rather than "code that seems to work." That distinction — structured composition over freeform generation — makes AI contributions auditable, composable, and maintainable over time. Developers move up from writing boilerplate to designing contracts and domain logic: the parts that give an application its actual meaning.
 
