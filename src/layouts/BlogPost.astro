@@ -1,5 +1,4 @@
 ---
-import { Image } from 'astro:assets';
 import type { CollectionEntry } from 'astro:content';
 import BaseHead from '../components/BaseHead.astro';
 import BlogSidebar from '../components/BlogSidebar.astro';
@@ -11,7 +10,7 @@ type Props = CollectionEntry<'blog'>['data'] & {
   wide?: boolean;
 };
 
-const { title, description, pubDate, updatedDate, heroImage, wide = false } = Astro.props;
+const { title, description, pubDate, updatedDate, heroImage, tags, wide = false } = Astro.props;
 ---
 
 <html lang="en">
@@ -19,7 +18,6 @@ const { title, description, pubDate, updatedDate, heroImage, wide = false } = As
     <BaseHead
       title={`${title} — dominikj111`}
       description={description}
-      image={heroImage}
       isArticle={true}
       pubDate={pubDate}
     />
@@ -68,6 +66,13 @@ const { title, description, pubDate, updatedDate, heroImage, wide = false } = As
                 </span>
               )}
             </div>
+            {tags && tags.length > 0 && (
+              <div class="pf-card__tags pf-blog-article__tags">
+                {tags.map((tag: string) => (
+                  <span class={`pf-tag${tag === 'draft' ? ' pf-tag--draft' : ''}`}>{tag}</span>
+                ))}
+              </div>
+            )}
           </header>
 
 

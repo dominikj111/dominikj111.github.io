@@ -24,8 +24,10 @@ export default function ContentTable({ items, focusedId, onFocus }: ContentTable
       </thead>
       <tbody>
         {items.map(item => {
-          const visibleTags = item.tags.slice(0, MAX_TAGS);
-          const extra       = item.tags.length - MAX_TAGS;
+          const isDraft     = item.tags.includes('draft');
+          const otherTags   = item.tags.filter(t => t !== 'draft');
+          const visibleTags = otherTags.slice(0, MAX_TAGS);
+          const extra       = otherTags.length - MAX_TAGS;
           const focused     = item.id === focusedId;
 
           return (
@@ -50,6 +52,7 @@ export default function ContentTable({ items, focusedId, onFocus }: ContentTable
               </td>
               <td className="pf-table__td pf-table__td--tags">
                 <div className="pf-card__tags">
+                  {isDraft && <span className="pf-tag pf-tag--draft">draft</span>}
                   {visibleTags.map(tag => (
                     <span key={tag} className="pf-tag">{tag}</span>
                   ))}

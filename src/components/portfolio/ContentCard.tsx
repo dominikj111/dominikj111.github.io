@@ -10,8 +10,10 @@ interface ContentCardProps {
 const MAX_TAGS = 3;
 
 export default function ContentCard({ item, focused, onClick }: ContentCardProps) {
-  const visibleTags = item.tags.slice(0, MAX_TAGS);
-  const extraCount  = item.tags.length - MAX_TAGS;
+  const isDraft    = item.tags.includes('draft');
+  const otherTags  = item.tags.filter(t => t !== 'draft');
+  const visibleTags = otherTags.slice(0, MAX_TAGS);
+  const extraCount  = otherTags.length - MAX_TAGS;
 
   return (
     <button
@@ -30,6 +32,7 @@ export default function ContentCard({ item, focused, onClick }: ContentCardProps
 
       <div className="pf-card__footer">
         <div className="pf-card__tags">
+          {isDraft && <span className="pf-tag pf-tag--draft">draft</span>}
           {visibleTags.map(tag => (
             <span key={tag} className="pf-tag">{tag}</span>
           ))}

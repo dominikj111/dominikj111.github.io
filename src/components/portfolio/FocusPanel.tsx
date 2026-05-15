@@ -75,7 +75,7 @@ export default function FocusPanel({ item, onClose, instant = false }: FocusPane
             {item.tags.length > 0 && (
               <div className="pf-panel__tags">
                 {item.tags.map(tag => (
-                  <span key={tag} className="pf-tag">{tag}</span>
+                  <span key={tag} className={`pf-tag${tag === 'draft' ? ' pf-tag--draft' : ''}`}>{tag}</span>
                 ))}
               </div>
             )}
