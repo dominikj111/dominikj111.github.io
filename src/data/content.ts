@@ -76,6 +76,18 @@ export const CONTENT_ITEMS: ContentItem[] = [
     meta: { status: 'active', tech: ['React', 'TypeScript', 'GraphQL', 'ViteJS'] },
   },
   {
+    id: 'article-mwp-npm-context',
+    type: 'article',
+    title: 'Your Folder Tree Is Already a Context Engine',
+    description:
+      "Jake Van Clief's Model Workspace Protocol reframes AI context engineering as filesystem architecture. For JS/TS developers, the insight goes further: Node.js module resolution is already a context cascade engine — and npm packages are the missing distribution layer.",
+    content:
+      "ICM/MWP shows that if a workflow's prompts and context already exist as numbered folders and markdown files, you do not need an orchestration framework. The filesystem is the architecture.\n\nThe practitioner insight is sharper: the folder tree is a context concatenation machine. The deeper you go, the more specific the concatenated context — without agent re-briefing or token-expensive reconstruction. This is exactly how Node.js module resolution works: walk up the directory tree until you find what you need.\n\nThe article extends the method to software projects (active references that self-verify, the compiler metaphor) and proposes an unpublished idea: workspace CONTEXT.md files packaged and distributed as npm packages — composable and version-controlled independently of product code, the way teams share linting configs or TypeScript presets.",
+    tags: ['draft', 'ai', 'context-engineering', 'icm', 'mwp', 'npm', 'typescript', 'workflow'],
+    createdAt: '2026-05-15',
+    slug: 'model-workspace-protocol-context-as-npm-packages',
+  },
+  {
     id: 'article-engram-missing-layer',
     type: 'article',
     title: 'Engram: A Deterministic Operations Layer for LLM Agent Workflows',
